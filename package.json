@@ -1,0 +1,12 @@
+{
+  "name": "strawberry-family-cloud",
+  "version": "1.0.0",
+  "description": "小草莓家族 - 多人协同云端版（纯 Node.js 内置模块，零依赖，支持 Supabase 持久化）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

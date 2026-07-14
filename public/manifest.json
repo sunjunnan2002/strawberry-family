@@ -1,0 +1,28 @@
+{
+    "name": "小草莓家族",
+    "short_name": "小草莓",
+    "description": "小草莓家族 - 家族战与贡献值看板，查看家族成员参战数据和贡献值",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#FFFBFC",
+    "theme_color": "#DA8FA5",
+    "scope": "./",
+    "icons": [
+        {
+            "src": "icons/app-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/app-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["productivity", "utilities"],
+    "lang": "zh-CN",
+    "dir": "ltr"
+}

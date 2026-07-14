@@ -1,0 +1,2405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#DA8FA5">
+    <meta name="description" content="小草莓家族 - 家族战与贡献值看板">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="小草莓家族">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/favicon.png">
+    <link rel="apple-touch-icon" href="icons/app-icon-192.png">
+    <title>小草莓家族</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "SimHei", "黑体", "Microsoft YaHei", "STHeiti", sans-serif;
+            background: linear-gradient(135deg, #FFFBFC 0%, #FFF0F5 50%, #FBD8E2 100%);
+            min-height: 100vh;
+            color: #A87A8C;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .floating-decor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.15;
+            font-size: 2rem;
+            animation: floatUp 15s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.15; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        #music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 8px 16px;
+            box-shadow: 0 2px 12px rgba(244, 143, 177, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        #music-toggle {
+            background: linear-gradient(135deg, #F4A8C0, #E891A8);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: white;
+        }
+
+        #music-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(236, 64, 122, 0.4);
+        }
+
+        #music-toggle.playing {
+            animation: musicPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        #music-status {
+            font-size: 0.8rem;
+            color: #A87A8C;
+            white-space: nowrap;
+        }
+
+        .wave-bar {
+            display: inline-block;
+            width: 3px;
+            height: 12px;
+            background: #E891A8;
+            margin: 0 1px;
+            border-radius: 2px;
+            animation: waveAnim 1s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes waveAnim {
+            0%, 100% { height: 6px; }
+            50% { height: 16px; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            color: #DA8FA5;
+            text-shadow: 2px 2px 4px rgba(244, 143, 177, 0.3);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        header .subtitle {
+            font-size: 1.1rem;
+            color: #A87A8C;
+            opacity: 0.8;
+        }
+
+        header .strawberry-divider {
+            font-size: 1.5rem;
+            margin: 10px 0;
+            letter-spacing: 8px;
+        }
+
+        /* Tab 切换 */
+        .tab-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease-out 0.2s both;
+        }
+
+        .tab-btn {
+            padding: 12px 32px;
+            border: 2px solid #FBD8E2;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.8);
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 1rem;
+            color: #A87A8C;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #F4A8C0, #E891A8);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(244, 143, 177, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            border-color: #F4A8C0;
+            color: #DA8FA5;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(244, 143, 177, 0.15);
+            border: 2px solid #FFF0F5;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(244, 143, 177, 0.25);
+        }
+
+        .stat-icon { font-size: 2rem; margin-bottom: 8px; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #DA8FA5; margin-bottom: 4px; }
+        .stat-label { font-size: 0.9rem; color: #A87A8C; opacity: 0.7; }
+
+        .progress-bar-container {
+            width: 100%; height: 8px; background: #FFF0F5;
+            border-radius: 4px; margin-top: 8px; overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #F4A8C0, #E891A8);
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .table-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 30px rgba(244, 143, 177, 0.15);
+            border: 2px solid #FFF0F5;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .add-member-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 0.9rem;
+            color: white;
+            background: linear-gradient(135deg, #E891A8, #DA8FA5);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .add-member-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(236, 64, 122, 0.3);
+        }
+
+        .add-member-btn:active { transform: translateY(0); }
+
+        .delete-member-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            color: #fff;
+            background: #F4A8C0;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(244, 143, 177, 0.3);
+        }
+
+        .delete-member-btn:hover {
+            background: #E891A8;
+            transform: scale(1.1);
+        }
+
+        .delete-col { width: 32px; text-align: center; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal-box {
+            background: #FFFBFC;
+            border-radius: 16px;
+            padding: 28px 32px;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(212, 104, 124, 0.25);
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .modal-box h3 { color: #DA8FA5; font-size: 1.2rem; margin-bottom: 16px; }
+
+        .modal-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #FBD8E2;
+            border-radius: 10px;
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 1rem;
+            color: #A87A8C;
+            background: #fff;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal-box input:focus { border-color: #E891A8; }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-btn:hover { opacity: 0.85; }
+        .modal-btn-cancel { background: #FBD8E2; color: #A87A8C; }
+        .modal-btn-confirm { background: linear-gradient(135deg, #E891A8, #DA8FA5); color: white; }
+
+        .table-header h2 { color: #DA8FA5; font-size: 1.4rem; }
+
+        .search-box { position: relative; }
+
+        .search-box input {
+            padding: 10px 16px 10px 40px;
+            border: 2px solid #FBD8E2;
+            border-radius: 25px;
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 0.9rem;
+            color: #A87A8C;
+            background: #FFFBFC;
+            outline: none;
+            width: 250px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: #E891A8;
+            box-shadow: 0 0 8px rgba(236, 64, 122, 0.2);
+        }
+
+        .search-box::before {
+            content: "\1F50D";
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 2px solid #FBD8E2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead { position: sticky; top: 0; z-index: 10; }
+
+        th {
+            background: #FBD8E2;
+            color: #FFFFFF;
+            padding: 14px 12px;
+            text-align: center;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        th:hover { background: #F4A8C0; }
+
+        th::after {
+            content: "\21C5";
+            margin-left: 5px;
+            opacity: 0.5;
+            font-size: 0.8rem;
+        }
+
+        th.name-col {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            background: #FBD8E2;
+            min-width: 140px;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #FFF0F5;
+            transition: background 0.2s ease;
+        }
+
+        td.name-col {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: #FFFBFC;
+            font-weight: bold;
+            color: #DA8FA5;
+            text-align: left;
+            padding-left: 16px;
+            min-width: 140px;
+        }
+
+        tbody tr:hover td { background: #FFF0F5; }
+        tbody tr:hover td.name-col { background: #FBD8E2; color: #FFFFFF; }
+
+        .honor-cell { background: #FFFBFC; font-weight: bold; color: #DA8FA5; }
+        .honor-cell.has-value { background: #FFF0F5; color: #D46A90; }
+        .empty-cell { color: #E2BCCA; opacity: 0.5; }
+
+        .formula-cell { font-weight: bold; }
+        .formula-cell.good { color: #66BB6A; background: #E8F5E9; }
+        .formula-cell.warning { color: #FF7043; background: #FFF3E0; }
+        .formula-cell.danger { color: #EF5350; background: #FFEBEE; }
+
+        tr.row-warning td { background: #FFF8E1 !important; }
+        tr.row-warning td.name-col { background: #FFE082 !important; color: #E65100 !important; }
+        tr.row-danger td { background: #FFEBEE !important; }
+        tr.row-danger td.name-col { background: #FFCDD2 !important; color: #B71C1C !important; }
+
+        .note-section, .formula-info {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(244, 143, 177, 0.15);
+            border: 2px solid #FFF0F5;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .formula-info { animation-delay: 0.7s; }
+
+        .note-section h3, .formula-info h3 {
+            color: #DA8FA5;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .note-section p {
+            color: #A87A8C;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .note-section .highlight { color: #E891A8; font-weight: bold; }
+
+        .formula-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: #FFFBFC;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .formula-tag {
+            display: inline-block;
+            background: #F4A8C0;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .formula-desc { color: #A87A8C; }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding: 12px;
+            background: #FFFBFC;
+            border-radius: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: #A87A8C;
+        }
+
+        .legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #E2BCCA;
+            font-size: 0.85rem;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+
+        .footer-contact {
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+            padding: 14px 0;
+            border-top: 1px solid #FBD8E2;
+            border-bottom: 1px solid #FBD8E2;
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: #A87A8C;
+        }
+
+        .contact-icon { font-size: 1.1rem; }
+
+        #install-banner {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(135deg, #DA8FA5, #E891A8);
+            color: white;
+            padding: 14px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 2000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.4s ease-out;
+            padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        }
+
+        #install-banner.show { display: flex; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        #install-banner .install-text { font-size: 0.9rem; line-height: 1.4; }
+        #install-banner .install-text strong { display: block; font-size: 1rem; margin-bottom: 2px; }
+
+        #install-btn {
+            background: white;
+            color: #DA8FA5;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 24px;
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.2s ease;
+        }
+
+        #install-btn:active { transform: scale(0.95); }
+
+        #install-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0 8px;
+            opacity: 0.8;
+        }
+
+        #bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid #FBD8E2;
+            z-index: 999;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        #bottom-nav.show {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 16px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: "SimHei", "黑体", sans-serif;
+            font-size: 0.7rem;
+            color: #E2BCCA;
+            transition: color 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active { color: #DA8FA5; }
+        .nav-item:active { transform: scale(0.92); }
+        .nav-icon { font-size: 1.3rem; }
+
+        body.app-mode .container { padding-bottom: 90px; }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .stat-card { padding: 16px; }
+            .stat-value { font-size: 1.4rem; }
+            .stat-icon { font-size: 1.6rem; }
+            .table-header { flex-direction: column; align-items: stretch; }
+            .search-box input { width: 100%; }
+            #music-control { top: 10px; right: 10px; padding: 6px 12px; top: calc(10px + env(safe-area-inset-top, 0px)); }
+            #music-status { display: none; }
+            .container { padding: 20px 12px; }
+            .table-section { padding: 16px; border-radius: 14px; }
+            .formula-info, .note-section { padding: 16px; border-radius: 12px; }
+            th, td { padding: 10px 6px; font-size: 0.8rem; }
+            .name-col { min-width: 100px !important; }
+            header h1 { font-size: 1.8rem; }
+            header .subtitle { font-size: 0.95rem; }
+            .tab-btn { padding: 10px 24px; font-size: 0.9rem; }
+        }
+
+        @media (max-width: 380px) {
+            .stats { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.5rem; }
+            th, td { padding: 8px 4px; font-size: 0.72rem; }
+        }
+
+        .table-wrapper::-webkit-scrollbar { height: 8px; }
+        .table-wrapper::-webkit-scrollbar-track { background: #FFF0F5; border-radius: 4px; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: #F4A8C0; border-radius: 4px; }
+        .table-wrapper::-webkit-scrollbar-thumb:hover { background: #E891A8; }
+
+        .editable { cursor: text; transition: background 0.2s ease; }
+        .editable:hover { background: #FFF9C4 !important; outline: 2px dashed #F4A8C0; outline-offset: -2px; }
+        .editable:focus { background: #FFFFFF !important; outline: 2px solid #E891A8; outline-offset: -2px; }
+
+        @keyframes cellFlash {
+            0% { background: #C8E6C9 !important; box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); }
+            50% { background: #A5D6A7 !important; box-shadow: 0 0 12px rgba(76, 175, 80, 0.8); }
+            100% { background: inherit; box-shadow: none; }
+        }
+        .cell-highlight { animation: cellFlash 2s ease-out; }
+
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+        }
+        #online-count { animation: pulseGreen 2s ease-in-out infinite; }
+    </style>
+</head>
+<body>
+    <div id="decorations"></div>
+
+    <div id="music-control">
+        <button id="music-toggle" title="播放/暂停音乐">🎵</button>
+        <span id="music-status">点击播放《だんご大家族》</span>
+    </div>
+
+    <div id="install-banner">
+        <div class="install-text">
+            <strong>🍓 安装小草莓家族 APP</strong>
+            <span>添加到主屏幕，随时查看数据</span>
+        </div>
+        <button id="install-btn">安装</button>
+        <button id="install-close">×</button>
+    </div>
+
+    <nav id="bottom-nav">
+        <button class="nav-item active" data-tab="battle">
+            <span class="nav-icon">⚔️</span>
+            <span>家族战</span>
+        </button>
+        <button class="nav-item" data-tab="contribution">
+            <span class="nav-icon">🏆</span>
+            <span>贡献值</span>
+        </button>
+        <button class="nav-item" id="nav-music">
+            <span class="nav-icon">🎵</span>
+            <span>音乐</span>
+        </button>
+    </nav>
+
+    <div class="container">
+        <header>
+            <div class="strawberry-divider">🍓 🍓 🍓</div>
+            <h1>小草莓家族</h1>
+            <p class="subtitle">家族战 · 贡献值 · 荣誉看板</p>
+            <div class="strawberry-divider">🍓 🍓 🍓</div>
+        </header>
+
+        <div class="tab-switcher">
+            <button class="tab-btn active" data-tab="battle">⚔️ 家族战</button>
+            <button class="tab-btn" data-tab="contribution">🏆 贡献值</button>
+        </div>
+
+        <!-- ==================== 家族战 Tab ==================== -->
+        <div class="tab-content active" id="battle-tab">
+            <section class="stats" id="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">家族成员总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚔️</div>
+                    <div class="stat-value" id="stat-participated">0</div>
+                    <div class="stat-label">已参战成员</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="stat-honor">0</div>
+                    <div class="stat-label">累计总荣誉值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="stat-rate">0%</div>
+                    <div class="stat-label">整体参战率</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="rate-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-section">
+                <div class="table-header">
+                    <h2>📋 家族战数据总表</h2>
+                    <div class="table-header-actions">
+                        <div class="search-box">
+                            <input type="text" id="search-input" placeholder="搜索成员昵称...">
+                        </div>
+                        <button class="add-member-btn" id="add-member-btn">➕ 添加成员</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="data-table">
+                        <thead>
+                            <tr id="table-header-row"></tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFF0F5;"></div>
+                        <span>有荣誉值（已参战）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFFBFC; border: 1px solid #FBD8E2;"></div>
+                        <span>未参战</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #E8F5E9;"></div>
+                        <span>达标（≥2次/月）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFF3E0;"></div>
+                        <span>警告（1次/月）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFEBEE;"></div>
+                        <span>危险（0次/月）</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="formula-info">
+                <h3>📝 公式自动生成说明</h3>
+                <div class="formula-item">
+                    <span class="formula-tag">(周五+周六)÷2</span>
+                    <span class="formula-desc"><strong>总共需参加次数</strong> = (一个月内周五+周六天数) ÷ 2 — 家族战每周五周六开打，两周一打，自动计算当月应参加次数</span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-tag">MAX(0,需-COUNTA)</span>
+                    <span class="formula-desc"><strong>一月内未参加次数</strong> = MAX(0, 总共需参加次数 - COUNTA(B:H)) — 需参加次数减去已参战次数，最低为0</span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-tag">SUM</span>
+                    <span class="formula-desc"><strong>累计总荣誉值</strong> = SUM(所有荣誉值) — 自动汇总全部成员的所有荣誉值</span>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: #E2BCCA;">💡 提示：点击表格中的荣誉值单元格可直接编辑，公式将自动重新计算。</p>
+            </section>
+
+            <section class="note-section">
+                <h3>📌 家族战规则</h3>
+                <p>表格里各个人填每次打的<span class="highlight">荣誉值</span>，每个月至少打<span class="highlight">2次</span>家族战，次数未达到2会<span class="highlight">优化</span>。</p>
+            </section>
+        </div>
+
+        <!-- ==================== 贡献值 Tab ==================== -->
+        <div class="tab-content" id="contribution-tab">
+            <section class="stats" id="contrib-stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="contrib-stat-total">0</div>
+                    <div class="stat-label">家族成员总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="contrib-stat-sum">0</div>
+                    <div class="stat-label">总贡献值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="contrib-stat-avg">0</div>
+                    <div class="stat-label">平均贡献值</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🥇</div>
+                    <div class="stat-value" id="contrib-stat-top" style="font-size: 1.2rem;">—</div>
+                    <div class="stat-label">最高贡献者</div>
+                </div>
+            </section>
+
+            <section class="table-section">
+                <div class="table-header">
+                    <h2>🏆 贡献值数据表</h2>
+                    <div class="table-header-actions">
+                        <div class="search-box">
+                            <input type="text" id="contrib-search-input" placeholder="搜索成员昵称...">
+                        </div>
+                        <button class="add-member-btn" id="contrib-add-member-btn">➕ 添加成员</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="contrib-data-table">
+                        <thead>
+                            <tr id="contrib-table-header-row"></tr>
+                        </thead>
+                        <tbody id="contrib-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFF0F5;"></div>
+                        <span>有贡献值</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #FFFBFC; border: 1px solid #FBD8E2;"></div>
+                        <span>无贡献值</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="formula-info">
+                <h3>📝 贡献值公式说明</h3>
+                <div class="formula-item">
+                    <span class="formula-tag">月初贡献值</span>
+                    <span class="formula-desc">每月<strong>1号</strong>统计的成员贡献值</span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-tag">月末贡献值</span>
+                    <span class="formula-desc">每月<strong>最后一天</strong>统计的成员贡献值</span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-tag">月末贡献比例</span>
+                    <span class="formula-desc"><strong>该成员总贡献值 ÷ 全体总贡献值 × 100%</strong></span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-tag">月末贡献值差额</span>
+                    <span class="formula-desc"><strong>月末贡献值 − 月初贡献值</strong></span>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: #E2BCCA;">💡 提示：点击表格中的贡献值单元格可直接编辑，数据自动同步到所有访问者。</p>
+            </section>
+        </div>
+
+        <footer>
+            <p>🍓 小草莓家族 · 家族战与贡献值看板 🍓</p>
+            <p style="margin-top: 4px; opacity: 0.6;">数据更新时间：<span id="update-month"></span></p>
+            <div class="footer-contact">
+                <div class="footer-contact-item">
+                    <span class="contact-icon">🍓</span>
+                    <span>小草莓</span>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="contact-icon">👤</span>
+                    <span>制作人：小楠</span>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="contact-icon">💬</span>
+                    <span>微信：riabbo</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="add-member-modal">
+        <div class="modal-box">
+            <h3>🍓 添加新成员</h3>
+            <input type="text" id="new-member-name" placeholder="输入成员昵称..." maxlength="20">
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="modal-cancel">取消</button>
+                <button class="modal-btn modal-btn-confirm" id="modal-confirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 工具函数 ====================
+        function hasValue(v) {
+            return v !== null && v !== '' && v !== undefined;
+        }
+
+        // ==================== 日期生成 ====================
+        function getWeekOfMonth(date) {
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const dayOfWeek = firstDay.getDay();
+            const adjustedDate = date.getDate() + dayOfWeek - 1;
+            return Math.floor(adjustedDate / 7) + 1;
+        }
+
+        function generateBattleDates(year, month) {
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const selected = [];
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dow = date.getDay();
+                if (dow === 5 || dow === 6) {
+                    const week = getWeekOfMonth(date);
+                    if (week % 2 === 1) { selected.push(day); }
+                }
+            }
+            return selected.map(day => (month + 1) + '.' + day);
+        }
+
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        const dates = generateBattleDates(currentYear, currentMonth);
+
+        // 贡献值日期：月初1号 + 月末最后一天
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const contribFirstDate = (currentMonth + 1) + '.1';
+        const contribLastDate = (currentMonth + 1) + '.' + lastDayOfMonth;
+
+        const battleStorageKey = 'strawberry-battle-' + currentYear + '-' + currentMonth;
+        const contribStorageKey = 'strawberry-contribution-' + currentYear + '-' + currentMonth;
+
+        // ==================== 成员数据（合并Excel+网站） ====================
+        // Excel 贡献值数据
+        const legacyContributions = {
+            '怪我笨': 177, '粉白莓': 92, '黛灰叶': 85, '哥布林上将': 84,
+            '不周null': 65, '小草感': 65, '平头哥o': 64, '哆LA懵': 51,
+            '柒个桃': 51, '胡椒爱丽': 51, '落尽海i': 46, '木楠nan': 45,
+            '你的盛年望之可及': 45, '小猫又炸毛': 42, '碳纤维': 39, '莓有问题': 36,
+            '咖喱酥': 36, '锅锅崽': 33, '要什么药': 30, '仿人某': 27,
+            '么1凹喵': 21, '美金哟': 21, '初五五五四四': 18, '碎碎冰冰': 18,
+            '頭馬角遂': 16, '适时の': 6, '夏日心悸序章': 6, '于瑾年': 0
+        };
+
+        // 网站历史战斗数据
+        const legacyDates = ['7.3', '7.4', '7.17', '7.18', '7.19', '7.31', '8.1'];
+        const battleLegacy = {
+            '怪我笨': [null, null, null, null, null, null, null],
+            '粉白莓': [3457, 6737, null, null, null, null, null],
+            '黛灰叶': [3142, 6100, null, null, null, null, null],
+            '哥布林上将': [2521, null, null, null, null, null, null],
+            '不周null': [null, null, null, null, null, null, null],
+            '小草感': [null, null, null, null, null, null, null],
+            '平头哥o': [3282, null, null, null, null, null, null],
+            '胡椒爱丽': [3776, 5506, null, null, null, null, null],
+            '哆LA懵': [null, null, null, null, null, null, null],
+            '柒个桃': [null, null, null, null, null, null, null],
+            '木楠nan': [4140, 7174, null, null, null, null, null],
+            '落尽海i': [null, 2650, null, null, null, null, null],
+            '你的盛年望之可及': [null, null, null, null, null, null, null],
+            '碳纤维': [null, null, null, null, null, null, null],
+            '小猫又炸毛': [null, null, null, null, null, null, null],
+            '莓没问题': [4042, 6312, null, null, null, null, null],
+            '要什么药': [null, null, null, null, null, null, null],
+            '锅锅崽': [null, null, null, null, null, null, null],
+            '咖喱酥': [3756, 6251, null, null, null, null, null],
+            '么1凹喵': [null, null, null, null, null, null, null],
+            '初五五五四四': [null, null, null, null, null, null, null],
+            '碎碎冰冰': [4240, 8344, null, null, null, null, null],
+            '美金哟': [null, null, null, null, null, null, null],
+            '适时の': [3160, 6480, null, null, null, null, null],
+            '于瑾年': [3080, null, null, null, null, null, null],
+            '爱我恨我都得排队': [2698, 4970, null, null, null, null, null],
+            '想和我一起腐烂吗': [null, null, null, null, null, null, null],
+            '夏日心悸序章': [4336, null, null, null, null, null, null],
+            '汭比兔': [null, null, null, null, null, null, null],
+            '乔柏歌': [null, null, null, null, null, null, null],
+            '仿人某': [null, null, null, null, null, null, null],
+            '頭馬角遂': [null, null, null, null, null, null, null]
+        };
+
+        // 统一成员名单
+        const allMemberNames = [
+            '怪我笨', '粉白莓', '黛灰叶', '哥布林上将', '不周null', '小草感',
+            '平头哥o', '哆LA懵', '柒个桃', '胡椒爱丽', '落尽海i', '木楠nan',
+            '你的盛年望之可及', '小猫又炸毛', '碳纤维', '莓有问题', '咖喱酥',
+            '锅锅崽', '要什么药', '仿人某', '么1凹喵', '美金哟', '初五五五四四',
+            '碎碎冰冰', '頭馬角遂', '适时の', '夏日心悸序章', '于瑾年',
+            '爱我恨我都得排队', '想和我一起腐烂吗', '汭比兔', '乔柏歌',
+            '0080', '小猫论'
+        ];
+
+        // 初始化家族战成员数据
+        let members = allMemberNames.map(function(name) {
+            var legacy = battleLegacy[name] || [];
+            var newValues = dates.map(function(d) {
+                var idx = legacyDates.indexOf(d);
+                return idx >= 0 ? (legacy[idx] || null) : null;
+            });
+            return { name: name, values: newValues };
+        });
+
+        // 初始化贡献值成员数据
+        let contributionMembers = allMemberNames.map(function(name) {
+            var firstVal = legacyContributions[name] !== undefined ? legacyContributions[name] : null;
+            return { name: name, firstValue: firstVal, secondValue: null };
+        });
+
+        // ==================== 本地存储 ====================
+        function loadBattleFromStorage() {
+            try {
+                var saved = localStorage.getItem(battleStorageKey);
+                if (saved) {
+                    var parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length === members.length) {
+                        var validLen = dates.length;
+                        var allValid = parsed.every(function(m) {
+                            return m && typeof m.name === 'string' &&
+                                Array.isArray(m.values) && m.values.length === validLen;
+                        });
+                        if (allValid) { members = parsed; }
+                        else { localStorage.removeItem(battleStorageKey); }
+                    }
+                }
+            } catch (e) {
+                console.warn('读取战斗本地数据失败', e);
+                localStorage.removeItem(battleStorageKey);
+            }
+        }
+
+        function loadContributionFromStorage() {
+            try {
+                var saved = localStorage.getItem(contribStorageKey);
+                if (saved) {
+                    var parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length === contributionMembers.length) {
+                        var allValid = parsed.every(function(m) {
+                            return m && typeof m.name === 'string';
+                        });
+                        if (allValid) { contributionMembers = parsed; }
+                        else { localStorage.removeItem(contribStorageKey); }
+                    }
+                }
+            } catch (e) {
+                console.warn('读取贡献值本地数据失败', e);
+                localStorage.removeItem(contribStorageKey);
+            }
+        }
+
+        function saveBattleToStorageOnly() {
+            try { localStorage.setItem(battleStorageKey, JSON.stringify(members)); }
+            catch (e) { console.warn('保存战斗本地数据失败', e); }
+        }
+
+        function saveContributionToStorageOnly() {
+            try { localStorage.setItem(contribStorageKey, JSON.stringify(contributionMembers)); }
+            catch (e) { console.warn('保存贡献值本地数据失败', e); }
+        }
+
+        function saveBattleToStorage() {
+            saveBattleToStorageOnly();
+            saveToCloud();
+        }
+
+        function saveContributionToStorage() {
+            saveContributionToStorageOnly();
+            saveToCloud();
+        }
+
+        loadBattleFromStorage();
+        loadContributionFromStorage();
+
+        // ==================== 云端同步（多人实时编辑模式） ====================
+        var API_BASE = null;
+        var lastCloudUpdate = null;
+        var isSyncing = false;
+        var isSaving = false;
+        var syncIndicator = null;
+        var onlineIndicator = null;
+        var pendingSave = false;
+
+        // 用户身份（每个浏览器唯一）
+        var userId = localStorage.getItem('strawberry-user-id');
+        if (!userId) {
+            userId = 'u-' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('strawberry-user-id', userId);
+        }
+        var userName = localStorage.getItem('strawberry-user-name');
+        if (!userName) {
+            userName = '\u6210\u5458' + userId.substr(-4);
+            localStorage.setItem('strawberry-user-name', userName);
+        }
+
+        // 从 config.json 动态获取隧道地址，失败则使用同源 API
+        async function fetchConfig() {
+            try {
+                var resp = await fetch('./config.json?t=' + Date.now(), { cache: 'no-store' });
+                if (resp.ok) {
+                    var cfg = await resp.json();
+                    if (cfg.apiBase && cfg.apiBase !== API_BASE) {
+                        API_BASE = cfg.apiBase;
+                        lastCloudUpdate = null;
+                        return;
+                    }
+                }
+            } catch (e) {}
+            // 没有 config.json 或没有 apiBase，使用同源 API（部署到云平台时自动生效）
+            if (API_BASE === null) {
+                API_BASE = '';
+                lastCloudUpdate = null;
+            }
+        }
+
+        function nowISO() { return new Date().toISOString(); }
+
+        function createSyncIndicator() {
+            if (document.getElementById('sync-status')) return;
+            var el = document.createElement('div');
+            el.id = 'sync-status';
+            el.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9998;font-size:0.7rem;padding:4px 10px;border-radius:12px;background:rgba(255,251,252,0.92);color:#E2BCCA;box-shadow:0 1px 4px rgba(0,0,0,0.08);backdrop-filter:blur(4px);transition:opacity 0.3s;font-family:SimHei,sans-serif;';
+            el.textContent = '\u2601 \u8fde\u63a5\u4e2d...';
+            document.body.appendChild(el);
+            syncIndicator = el;
+
+            var ol = document.createElement('div');
+            ol.id = 'online-count';
+            ol.style.cssText = 'position:fixed;top:38px;right:12px;z-index:9998;font-size:0.65rem;padding:3px 8px;border-radius:10px;background:rgba(255,251,252,0.92);color:#81C784;box-shadow:0 1px 4px rgba(0,0,0,0.06);backdrop-filter:blur(4px);font-family:SimHei,sans-serif;display:flex;align-items:center;gap:4px;';
+            ol.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#4CAF50;display:inline-block;"></span>1\u4eba\u5728\u7ebf';
+            document.body.appendChild(ol);
+            onlineIndicator = ol;
+        }
+
+        function updateSyncStatus(status, onlineCount) {
+            if (syncIndicator && status) {
+                if (status === 'synced') {
+                    syncIndicator.textContent = '\u2601 \u5df2\u540c\u6b65';
+                    syncIndicator.style.color = '#A87A8C';
+                } else if (status === 'syncing') {
+                    syncIndicator.textContent = '\u2601 \u540c\u6b65\u4e2d...';
+                    syncIndicator.style.color = '#DA8FA5';
+                } else if (status === 'offline') {
+                    syncIndicator.textContent = '\u2601 \u79bb\u7ebf';
+                    syncIndicator.style.color = '#E2BCCA';
+                } else if (status === 'connecting') {
+                    syncIndicator.textContent = '\u2601 \u8fde\u63a5\u4e2d...';
+                    syncIndicator.style.color = '#E2BCCA';
+                }
+            }
+            if (onlineIndicator && onlineCount !== undefined && onlineCount !== null) {
+                var dot = onlineCount > 1 ? '#4CAF50' : '#A5D6A7';
+                onlineIndicator.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:' + dot + ';display:inline-block;"></span>' + onlineCount + '\u4eba\u5728\u7ebf';
+            }
+        }
+
+        // 心跳：告知服务器我在线，并获取在线人数
+        async function sendHeartbeat() {
+            if (API_BASE === null) return;
+            try {
+                var resp = await fetch(API_BASE + '/api/heartbeat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'bypass-tunnel-reminder': 'true',
+                        'X-User-Id': userId,
+                        'X-User-Name': userName
+                    },
+                    signal: AbortSignal.timeout(5000)
+                });
+                if (resp.ok) {
+                    var data = await resp.json();
+                    if (data.onlineCount !== undefined) {
+                        updateSyncStatus(null, data.onlineCount);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // 确保成员数据有时间戳数组
+        function ensureTimestamps() {
+            members.forEach(function(m) {
+                if (!m.valueTimestamps) {
+                    m.valueTimestamps = m.values.map(function() { return null; });
+                }
+            });
+            contributionMembers.forEach(function(m) {
+                if (m.firstTimestamp === undefined) m.firstTimestamp = null;
+                if (m.secondTimestamp === undefined) m.secondTimestamp = null;
+            });
+        }
+
+        // 保存到云端（带 300ms 防抖）
+        var saveTimer = null;
+        function saveToCloud() {
+            if (saveTimer) clearTimeout(saveTimer);
+            saveTimer = setTimeout(async function() {
+                if (isSaving) { pendingSave = true; return; }
+                if (API_BASE === null) { pendingSave = true; return; }
+                isSaving = true;
+                ensureTimestamps();
+                try {
+                    updateSyncStatus('syncing');
+                    var response = await fetch(API_BASE + '/api/data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'bypass-tunnel-reminder': 'true',
+                            'X-User-Id': userId,
+                            'X-User-Name': userName
+                        },
+                        body: JSON.stringify({
+                            month: currentYear + '-' + currentMonth,
+                            battleMembers: members,
+                            contributionMembers: contributionMembers
+                        })
+                    });
+                    if (response.ok) {
+                        var result = await response.json();
+                        if (result.lastUpdated) lastCloudUpdate = result.lastUpdated;
+                        updateSyncStatus('synced');
+                    } else {
+                        updateSyncStatus('offline');
+                    }
+                } catch (e) {
+                    updateSyncStatus('offline');
+                }
+                isSaving = false;
+                if (pendingSave) { pendingSave = false; saveToCloud(); }
+            }, 300);
+        }
+
+        // 从云端加载（智能同步：只保护当前正在编辑的单元格，其余正常更新）
+        async function loadFromCloud() {
+            if (isSyncing) return;
+            if (API_BASE === null) { await fetchConfig(); if (API_BASE === null) return; }
+
+            // 记录当前正在编辑的单元格
+            var activeEl = document.activeElement;
+            var editingInfo = null;
+            if (activeEl && activeEl.contentEditable === 'true' && activeEl.dataset && activeEl.dataset.memberIndex !== undefined) {
+                editingInfo = {
+                    memberIndex: parseInt(activeEl.dataset.memberIndex),
+                    dateIndex: activeEl.dataset.dateIndex !== undefined ? parseInt(activeEl.dataset.dateIndex) : null,
+                    field: activeEl.dataset.field || null,
+                    text: activeEl.textContent
+                };
+            }
+
+            isSyncing = true;
+            try {
+                var response = await fetch(API_BASE + '/api/data', {
+                    headers: {
+                        'bypass-tunnel-reminder': 'true',
+                        'Accept': 'application/json'
+                    },
+                    signal: AbortSignal.timeout(8000)
+                });
+                if (response.ok) {
+                    var data = await response.json();
+
+                    // 云端数据没变化则跳过
+                    if (data.lastUpdated && lastCloudUpdate && data.lastUpdated === lastCloudUpdate) {
+                        updateSyncStatus('synced');
+                        isSyncing = false;
+                        return;
+                    }
+
+                    var changed = false;
+                    var changedCellsInfo = [];
+
+                    // 加载家族战数据（cell 级别合并）
+                    var battleData = data.battleMembers || data.members;
+                    if (battleData && Array.isArray(battleData) && battleData.length > 0) {
+                        var validLen = dates.length;
+                        var battleValid = battleData.every(function(m) {
+                            return m && typeof m.name === 'string' &&
+                                Array.isArray(m.values) && m.values.length === validLen;
+                        });
+                        if (battleValid) {
+                            // 成员数量变了（增删成员），整体更新
+                            if (battleData.length !== members.length) {
+                                members = battleData;
+                                ensureTimestamps();
+                                changed = true;
+                            } else {
+                                // 逐成员逐 cell 合并
+                                battleData.forEach(function(rm) {
+                                    var lm = members.find(function(m) { return m.name === rm.name; });
+                                    if (!lm) return;
+                                    if (!lm.valueTimestamps) lm.valueTimestamps = lm.values.map(function() { return null; });
+                                    var rmTs = rm.valueTimestamps || rm.values.map(function() { return null; });
+
+                                    for (var i = 0; i < rm.values.length; i++) {
+                                        // 跳过正在编辑的 cell
+                                        if (editingInfo && editingInfo.dateIndex === i &&
+                                            members[editingInfo.memberIndex] === lm) continue;
+
+                                        var localTs = lm.valueTimestamps[i] || null;
+                                        var remoteTs = rmTs[i] || null;
+
+                                        if (remoteTs && (!localTs || new Date(remoteTs) > new Date(localTs))) {
+                                            if (lm.values[i] !== rm.values[i]) {
+                                                changedCellsInfo.push({ type: 'battle', name: lm.name, dateIndex: i });
+                                                lm.values[i] = rm.values[i];
+                                                changed = true;
+                                            }
+                                            lm.valueTimestamps[i] = remoteTs;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+
+                    // 加载贡献值数据（cell 级别合并）
+                    if (data.contributionMembers && Array.isArray(data.contributionMembers) && data.contributionMembers.length > 0) {
+                        var contribValid = data.contributionMembers.every(function(m) {
+                            return m && typeof m.name === 'string';
+                        });
+                        if (contribValid) {
+                            if (data.contributionMembers.length !== contributionMembers.length) {
+                                contributionMembers = data.contributionMembers;
+                                changed = true;
+                            } else {
+                                data.contributionMembers.forEach(function(rm) {
+                                    var lm = contributionMembers.find(function(m) { return m.name === rm.name; });
+                                    if (!lm) return;
+
+                                    // firstValue
+                                    var rFT = rm.firstTimestamp || null;
+                                    var lFT = lm.firstTimestamp || null;
+                                    if (rFT && (!lFT || new Date(rFT) > new Date(lFT))) {
+                                        if (!(editingInfo && editingInfo.field === 'firstValue' &&
+                                              contributionMembers[editingInfo.memberIndex] === lm)) {
+                                            if (lm.firstValue !== rm.firstValue) {
+                                                changedCellsInfo.push({ type: 'contrib', name: lm.name, field: 'firstValue' });
+                                                lm.firstValue = rm.firstValue;
+                                                changed = true;
+                                            }
+                                        }
+                                        lm.firstTimestamp = rFT;
+                                    }
+
+                                    // secondValue
+                                    var rST = rm.secondTimestamp || null;
+                                    var lST = lm.secondTimestamp || null;
+                                    if (rST && (!lST || new Date(rST) > new Date(lST))) {
+                                        if (!(editingInfo && editingInfo.field === 'secondValue' &&
+                                              contributionMembers[editingInfo.memberIndex] === lm)) {
+                                            if (lm.secondValue !== rm.secondValue) {
+                                                changedCellsInfo.push({ type: 'contrib', name: lm.name, field: 'secondValue' });
+                                                lm.secondValue = rm.secondValue;
+                                                changed = true;
+                                            }
+                                        }
+                                        lm.secondTimestamp = rST;
+                                    }
+                                });
+                            }
+                        }
+                    }
+
+                    if (data.lastUpdated) lastCloudUpdate = data.lastUpdated;
+
+                    if (changed) {
+                        syncMemberArrays();
+                        updateSyncStatus('synced');
+                        renderAll();
+                        saveBattleToStorageOnly();
+                        saveContributionToStorageOnly();
+                        highlightChangedCells(changedCellsInfo);
+                    } else {
+                        updateSyncStatus('synced');
+                    }
+                } else {
+                    updateSyncStatus('offline');
+                }
+            } catch (e) {
+                updateSyncStatus('offline');
+            }
+            isSyncing = false;
+        }
+
+        // 高亮被其他人修改的单元格
+        function highlightChangedCells(cellsInfo) {
+            if (!cellsInfo || cellsInfo.length === 0) return;
+            cellsInfo.forEach(function(info) {
+                if (info.type === 'battle') {
+                    var mIdx = members.findIndex(function(m) { return m.name === info.name; });
+                    if (mIdx >= 0) {
+                        var cell = document.querySelector('[data-member-index="' + mIdx + '"][data-date-index="' + info.dateIndex + '"]');
+                        if (cell) {
+                            cell.classList.add('cell-highlight');
+                            setTimeout(function() { cell.classList.remove('cell-highlight'); }, 2000);
+                        }
+                    }
+                } else if (info.type === 'contrib') {
+                    var cIdx = contributionMembers.findIndex(function(m) { return m.name === info.name; });
+                    if (cIdx >= 0) {
+                        var cCell = document.querySelector('[data-member-index="' + cIdx + '"][data-field="' + info.field + '"]');
+                        if (cCell) {
+                            cCell.classList.add('cell-highlight');
+                            setTimeout(function() { cCell.classList.remove('cell-highlight'); }, 2000);
+                        }
+                    }
+                }
+            });
+        }
+
+        // 确保两个数组成员同步
+        function syncMemberArrays() {
+            // 以 members 为基准，确保 contributionMembers 名称对齐
+            if (members.length === contributionMembers.length) {
+                var allMatch = true;
+                for (var i = 0; i < members.length; i++) {
+                    if (members[i].name !== contributionMembers[i].name) { allMatch = false; break; }
+                }
+                if (allMatch) return;
+            }
+            // 重建 contributionMembers 对齐 members
+            var newContrib = members.map(function(m) {
+                var existing = contributionMembers.find(function(c) { return c.name === m.name; });
+                if (existing) return existing;
+                var firstVal = legacyContributions[m.name] !== undefined ? legacyContributions[m.name] : null;
+                return { name: m.name, firstValue: firstVal, secondValue: null };
+            });
+            contributionMembers = newContrib;
+        }
+
+        // 延迟初始化
+        setTimeout(async function() {
+            await fetchConfig();
+            ensureTimestamps();
+            loadFromCloud();
+            sendHeartbeat();
+        }, 500);
+
+        // 每 30 秒刷新配置
+        setInterval(fetchConfig, 30000);
+        // 每 5 秒心跳
+        setInterval(sendHeartbeat, 5000);
+
+        // ==================== 家族战公式计算 ====================
+        function calcRequiredCount() {
+            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            var count = 0;
+            for (var day = 1; day <= daysInMonth; day++) {
+                var dow = new Date(currentYear, currentMonth, day).getDay();
+                if (dow === 5 || dow === 6) count++;
+            }
+            return Math.round(count / 2);
+        }
+
+        var REQUIRED_COUNT = calcRequiredCount();
+
+        function calcParticipated(member) {
+            return member.values.filter(function(v) { return hasValue(v); }).length;
+        }
+
+        function calcMissed(member) {
+            return Math.max(0, REQUIRED_COUNT - calcParticipated(member));
+        }
+
+        function calcTotalHonor(member) {
+            return member.values.reduce(function(sum, v) { return sum + (hasValue(v) ? Number(v) : 0); }, 0);
+        }
+
+        function getRowStatus(member) {
+            var count = calcParticipated(member);
+            if (count === 0) return 'danger';
+            if (count < 2) return 'warning';
+            return 'good';
+        }
+
+        // ==================== 家族战表格渲染 ====================
+        var sortColumn = null;
+        var sortDirection = 1;
+
+        function renderHeader() {
+            var theadRow = document.getElementById('table-header-row');
+            if (!theadRow) return;
+            theadRow.innerHTML =
+                '<th class="name-col" data-sort="name">姓名</th>' +
+                dates.map(function(d, i) { return '<th data-sort="' + i + '">' + d + '</th>'; }).join('') +
+                '<th data-sort="participated">总共需参加次数</th>' +
+                '<th data-sort="missed">一月内未参加次数</th>' +
+                '<th class="delete-col">删除</th>';
+
+            theadRow.querySelectorAll('th').forEach(function(th) {
+                th.addEventListener('click', function() {
+                    var col = th.dataset.sort;
+                    if (sortColumn === col) { sortDirection *= -1; }
+                    else { sortColumn = col; sortDirection = 1; }
+                    var si = document.getElementById('search-input');
+                    renderTable(si ? si.value : '');
+                });
+            });
+        }
+
+        function renderTable(filter) {
+            filter = filter || '';
+            var tbody = document.getElementById('table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            var displayMembers = members.map(function(m, idx) {
+                return { name: m.name, values: m.values, originalIndex: idx };
+            });
+
+            if (filter) {
+                displayMembers = displayMembers.filter(function(m) {
+                    return m.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0;
+                });
+            }
+
+            if (sortColumn !== null) {
+                displayMembers.sort(function(a, b) {
+                    var valA, valB;
+                    if (sortColumn === 'name') {
+                        return a.name.localeCompare(b.name, 'zh-CN') * sortDirection;
+                    } else if (sortColumn === 'participated') {
+                        valA = calcParticipated(a); valB = calcParticipated(b);
+                    } else if (sortColumn === 'missed') {
+                        valA = calcMissed(a); valB = calcMissed(b);
+                    } else {
+                        var idx = parseInt(sortColumn);
+                        valA = hasValue(a.values[idx]) ? Number(a.values[idx]) : -1;
+                        valB = hasValue(b.values[idx]) ? Number(b.values[idx]) : -1;
+                    }
+                    return (valA - valB) * sortDirection;
+                });
+            }
+
+            displayMembers.forEach(function(member) {
+                var tr = document.createElement('tr');
+                var status = getRowStatus(member);
+                if (status === 'danger') tr.classList.add('row-danger');
+                else if (status === 'warning') tr.classList.add('row-warning');
+
+                var nameTd = document.createElement('td');
+                nameTd.className = 'name-col';
+                nameTd.textContent = member.name;
+                tr.appendChild(nameTd);
+
+                member.values.forEach(function(val, idx) {
+                    var td = document.createElement('td');
+                    td.className = 'honor-cell editable';
+                    td.contentEditable = 'true';
+                    td.dataset.memberIndex = member.originalIndex;
+                    td.dataset.dateIndex = idx;
+                    if (hasValue(val)) {
+                        td.classList.add('has-value');
+                        td.textContent = val;
+                    } else {
+                        td.classList.add('empty-cell');
+                        td.textContent = '\u2014';
+                    }
+                    td.addEventListener('blur', handleCellEdit);
+                    td.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); td.blur(); }
+                    });
+                    tr.appendChild(td);
+                });
+
+                var partTd = document.createElement('td');
+                partTd.className = 'formula-cell ' + status;
+                partTd.innerHTML = '<strong>' + REQUIRED_COUNT + '</strong><br><span style="font-size:0.7rem;opacity:0.7;">=(周五+周六)/2</span>';
+                tr.appendChild(partTd);
+
+                var missed = calcMissed(member);
+                var missTd = document.createElement('td');
+                missTd.className = 'formula-cell ' + status;
+                missTd.innerHTML = '<strong>' + missed + '</strong><br><span style="font-size:0.7rem;opacity:0.7;">=MAX(0,需参加-COUNTA)</span>';
+                tr.appendChild(missTd);
+
+                var delTd = document.createElement('td');
+                delTd.className = 'delete-col';
+                var delBtn = document.createElement('button');
+                delBtn.className = 'delete-member-btn';
+                delBtn.textContent = '\u2715';
+                delBtn.title = '删除「' + member.name + '」';
+                delBtn.addEventListener('click', function() {
+                    deleteMember(member.originalIndex, member.name);
+                });
+                delTd.appendChild(delBtn);
+                tr.appendChild(delTd);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleCellEdit(e) {
+            var td = e.target;
+            var memberIdx = parseInt(td.dataset.memberIndex);
+            var dateIdx = parseInt(td.dataset.dateIndex);
+            var text = td.textContent.trim().replace(/\u2014/g, '').replace(/,/g, '');
+
+            var ts = nowISO();
+            if (!members[memberIdx].valueTimestamps) {
+                members[memberIdx].valueTimestamps = members[memberIdx].values.map(function() { return null; });
+            }
+
+            if (text === '') {
+                members[memberIdx].values[dateIdx] = null;
+                members[memberIdx].valueTimestamps[dateIdx] = ts;
+                td.classList.remove('has-value');
+                td.classList.add('empty-cell');
+                td.textContent = '\u2014';
+            } else {
+                var num = parseInt(text);
+                if (!isNaN(num) && num >= 0) {
+                    members[memberIdx].values[dateIdx] = num;
+                    members[memberIdx].valueTimestamps[dateIdx] = ts;
+                    td.classList.add('has-value');
+                    td.classList.remove('empty-cell');
+                    td.textContent = num;
+                } else {
+                    var orig = members[memberIdx].values[dateIdx];
+                    if (hasValue(orig)) { td.textContent = orig; }
+                    else {
+                        td.classList.add('empty-cell');
+                        td.classList.remove('has-value');
+                        td.textContent = '\u2014';
+                    }
+                }
+            }
+            var si = document.getElementById('search-input');
+            renderTable(si ? si.value : '');
+            renderStats();
+            saveBattleToStorage();
+        }
+
+        // ==================== 贡献值表格渲染 ====================
+        var contribSortColumn = 'firstValue';
+        var contribSortDirection = -1; // 默认降序
+
+        function renderContributionHeader() {
+            var theadRow = document.getElementById('contrib-table-header-row');
+            if (!theadRow) return;
+            theadRow.innerHTML =
+                '<th class="name-col" data-sort="name">家族成员</th>' +
+                '<th data-sort="firstValue">第一次贡献值(' + contribFirstDate + ')</th>' +
+                '<th data-sort="secondValue">第二次贡献值(' + contribLastDate + ')</th>' +
+                '<th data-sort="ratio">月末贡献比例</th>' +
+                '<th data-sort="diff">月末贡献值差额</th>' +
+                '<th class="delete-col">删除</th>';
+
+            theadRow.querySelectorAll('th').forEach(function(th) {
+                th.addEventListener('click', function() {
+                    var col = th.dataset.sort;
+                    if (contribSortColumn === col) { contribSortDirection *= -1; }
+                    else { contribSortColumn = col; contribSortDirection = (col === 'name') ? 1 : -1; }
+                    var csi = document.getElementById('contrib-search-input');
+                    renderContributionTable(csi ? csi.value : '');
+                });
+            });
+        }
+
+        function renderContributionTable(filter) {
+            filter = filter || '';
+            var tbody = document.getElementById('contrib-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            var displayMembers = contributionMembers.map(function(m, idx) {
+                return { name: m.name, firstValue: m.firstValue, secondValue: m.secondValue, originalIndex: idx };
+            });
+
+            if (filter) {
+                displayMembers = displayMembers.filter(function(m) {
+                    return m.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0;
+                });
+            }
+
+            var grandTotal = contributionMembers.reduce(function(sum, m) {
+                return sum + (hasValue(m.firstValue) ? Number(m.firstValue) : 0)
+                          + (hasValue(m.secondValue) ? Number(m.secondValue) : 0);
+            }, 0);
+
+            displayMembers.sort(function(a, b) {
+                var valA, valB;
+                if (contribSortColumn === 'name') {
+                    return a.name.localeCompare(b.name, 'zh-CN') * contribSortDirection;
+                } else if (contribSortColumn === 'firstValue') {
+                    valA = hasValue(a.firstValue) ? Number(a.firstValue) : 0;
+                    valB = hasValue(b.firstValue) ? Number(b.firstValue) : 0;
+                } else if (contribSortColumn === 'secondValue') {
+                    valA = hasValue(a.secondValue) ? Number(a.secondValue) : 0;
+                    valB = hasValue(b.secondValue) ? Number(b.secondValue) : 0;
+                } else if (contribSortColumn === 'ratio') {
+                    var aTotal = (hasValue(a.firstValue) ? Number(a.firstValue) : 0) + (hasValue(a.secondValue) ? Number(a.secondValue) : 0);
+                    var bTotal = (hasValue(b.firstValue) ? Number(b.firstValue) : 0) + (hasValue(b.secondValue) ? Number(b.secondValue) : 0);
+                    valA = grandTotal > 0 ? aTotal / grandTotal : 0;
+                    valB = grandTotal > 0 ? bTotal / grandTotal : 0;
+                } else if (contribSortColumn === 'diff') {
+                    var aDiff = (hasValue(a.secondValue) ? Number(a.secondValue) : 0) - (hasValue(a.firstValue) ? Number(a.firstValue) : 0);
+                    var bDiff = (hasValue(b.secondValue) ? Number(b.secondValue) : 0) - (hasValue(b.firstValue) ? Number(b.firstValue) : 0);
+                    valA = aDiff;
+                    valB = bDiff;
+                }
+                return (valA - valB) * contribSortDirection;
+            });
+
+            displayMembers.forEach(function(member) {
+                var tr = document.createElement('tr');
+
+                var nameTd = document.createElement('td');
+                nameTd.className = 'name-col';
+                nameTd.textContent = member.name;
+                tr.appendChild(nameTd);
+
+                // 第一次贡献值
+                var firstTd = document.createElement('td');
+                firstTd.className = 'honor-cell editable';
+                firstTd.contentEditable = 'true';
+                firstTd.dataset.memberIndex = member.originalIndex;
+                firstTd.dataset.field = 'firstValue';
+                if (hasValue(member.firstValue)) {
+                    firstTd.classList.add('has-value');
+                    firstTd.textContent = member.firstValue;
+                } else {
+                    firstTd.classList.add('empty-cell');
+                    firstTd.textContent = '\u2014';
+                }
+                firstTd.addEventListener('blur', handleContribCellEdit);
+                firstTd.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); firstTd.blur(); }
+                });
+                tr.appendChild(firstTd);
+
+                // 第二次贡献值
+                var secondTd = document.createElement('td');
+                secondTd.className = 'honor-cell editable';
+                secondTd.contentEditable = 'true';
+                secondTd.dataset.memberIndex = member.originalIndex;
+                secondTd.dataset.field = 'secondValue';
+                if (hasValue(member.secondValue)) {
+                    secondTd.classList.add('has-value');
+                    secondTd.textContent = member.secondValue;
+                } else {
+                    secondTd.classList.add('empty-cell');
+                    secondTd.textContent = '\u2014';
+                }
+                secondTd.addEventListener('blur', handleContribCellEdit);
+                secondTd.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); secondTd.blur(); }
+                });
+                tr.appendChild(secondTd);
+
+                // 月末贡献比例
+                var ratioTd = document.createElement('td');
+                ratioTd.className = 'formula-cell';
+                var memberTotal = (hasValue(member.firstValue) ? Number(member.firstValue) : 0)
+                                + (hasValue(member.secondValue) ? Number(member.secondValue) : 0);
+                var ratio = grandTotal > 0 ? (memberTotal / grandTotal * 100).toFixed(1) : '0.0';
+                ratioTd.innerHTML = '<strong>' + ratio + '%</strong>';
+                if (memberTotal > 0) ratioTd.classList.add('good');
+                tr.appendChild(ratioTd);
+
+                // 月末贡献值差额 = 月末贡献值 - 月初贡献值
+                var diffTd = document.createElement('td');
+                diffTd.className = 'formula-cell';
+                var firstNum = hasValue(member.firstValue) ? Number(member.firstValue) : 0;
+                var secondNum = hasValue(member.secondValue) ? Number(member.secondValue) : 0;
+                var diff = secondNum - firstNum;
+                var diffStr = (diff > 0 ? '+' : '') + diff;
+                diffTd.innerHTML = '<strong>' + diffStr + '</strong>';
+                if (diff > 0) diffTd.classList.add('good');
+                else if (diff < 0) diffTd.style.color = '#E891A8';
+                tr.appendChild(diffTd);
+
+                // 删除按钮
+                var delTd = document.createElement('td');
+                delTd.className = 'delete-col';
+                var delBtn = document.createElement('button');
+                delBtn.className = 'delete-member-btn';
+                delBtn.textContent = '\u2715';
+                delBtn.title = '删除「' + member.name + '」';
+                delBtn.addEventListener('click', function() {
+                    deleteMember(member.originalIndex, member.name);
+                });
+                delTd.appendChild(delBtn);
+                tr.appendChild(delTd);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleContribCellEdit(e) {
+            var td = e.target;
+            var memberIdx = parseInt(td.dataset.memberIndex);
+            var field = td.dataset.field;
+            var text = td.textContent.trim().replace(/\u2014/g, '').replace(/,/g, '');
+
+            var ts = nowISO();
+            if (text === '') {
+                contributionMembers[memberIdx][field] = null;
+                if (field === 'firstValue') contributionMembers[memberIdx].firstTimestamp = ts;
+                else contributionMembers[memberIdx].secondTimestamp = ts;
+                td.classList.remove('has-value');
+                td.classList.add('empty-cell');
+                td.textContent = '\u2014';
+            } else {
+                var num = parseInt(text);
+                if (!isNaN(num) && num >= 0) {
+                    contributionMembers[memberIdx][field] = num;
+                    if (field === 'firstValue') contributionMembers[memberIdx].firstTimestamp = ts;
+                    else contributionMembers[memberIdx].secondTimestamp = ts;
+                    td.classList.add('has-value');
+                    td.classList.remove('empty-cell');
+                    td.textContent = num;
+                } else {
+                    var orig = contributionMembers[memberIdx][field];
+                    if (hasValue(orig)) { td.textContent = orig; }
+                    else {
+                        td.classList.add('empty-cell');
+                        td.classList.remove('has-value');
+                        td.textContent = '\u2014';
+                    }
+                }
+            }
+            var csi = document.getElementById('contrib-search-input');
+            renderContributionTable(csi ? csi.value : '');
+            renderContributionStats();
+            saveContributionToStorage();
+        }
+
+        // ==================== 贡献值统计 ====================
+        function renderContributionStats() {
+            var total = contributionMembers.length;
+            var totalContrib = contributionMembers.reduce(function(sum, m) {
+                return sum + (hasValue(m.firstValue) ? Number(m.firstValue) : 0)
+                          + (hasValue(m.secondValue) ? Number(m.secondValue) : 0);
+            }, 0);
+            var avg = total > 0 ? (totalContrib / total).toFixed(1) : '0';
+
+            var topMember = '\u2014';
+            var topValue = 0;
+            contributionMembers.forEach(function(m) {
+                var val = (hasValue(m.firstValue) ? Number(m.firstValue) : 0)
+                        + (hasValue(m.secondValue) ? Number(m.secondValue) : 0);
+                if (val > topValue) { topValue = val; topMember = m.name; }
+            });
+
+            var el;
+            el = document.getElementById('contrib-stat-total'); if (el) el.textContent = total;
+            el = document.getElementById('contrib-stat-sum'); if (el) el.textContent = totalContrib.toLocaleString();
+            el = document.getElementById('contrib-stat-avg'); if (el) el.textContent = avg;
+            el = document.getElementById('contrib-stat-top'); if (el) el.textContent = topMember;
+        }
+
+        // ==================== 家族战统计 ====================
+        function renderStats() {
+            var total = members.length;
+            var participated = members.filter(function(m) { return calcParticipated(m) > 0; }).length;
+            var totalHonor = members.reduce(function(sum, m) { return sum + calcTotalHonor(m); }, 0);
+            var rate = total > 0 ? ((participated / total) * 100).toFixed(1) : 0;
+
+            var el;
+            el = document.getElementById('stat-total'); if (el) el.textContent = total;
+            el = document.getElementById('stat-participated'); if (el) el.textContent = participated;
+            el = document.getElementById('stat-honor'); if (el) el.textContent = totalHonor.toLocaleString();
+            el = document.getElementById('stat-rate'); if (el) el.textContent = rate + '%';
+            el = document.getElementById('rate-bar'); if (el) el.style.width = rate + '%';
+        }
+
+        // ==================== 统一渲染 ====================
+        function renderAll() {
+            renderHeader();
+            var si = document.getElementById('search-input');
+            renderTable(si ? si.value : '');
+            renderStats();
+            renderContributionHeader();
+            var csi = document.getElementById('contrib-search-input');
+            renderContributionTable(csi ? csi.value : '');
+            renderContributionStats();
+        }
+
+        // ==================== 成员增删（同时影响两个表） ====================
+        function addMember(name) {
+            var newValues = dates.map(function() { return null; });
+            members.push({ name: name, values: newValues });
+            contributionMembers.push({ name: name, firstValue: null, secondValue: null });
+            renderAll();
+            saveBattleToStorage();
+            saveContributionToStorage();
+        }
+
+        function deleteMember(index, name) {
+            if (!confirm('确定要删除成员「' + name + '」吗？\n该操作将从家族战和贡献值中同时移除，不可撤销。')) return;
+            members.splice(index, 1);
+            contributionMembers.splice(index, 1);
+            renderAll();
+            saveBattleToStorage();
+            saveContributionToStorage();
+        }
+
+        // 添加成员弹窗
+        var addMemberModal = document.getElementById('add-member-modal');
+        var newMemberInput = document.getElementById('new-member-name');
+        var modalCancel = document.getElementById('modal-cancel');
+        var modalConfirm = document.getElementById('modal-confirm');
+
+        function openAddMemberModal() {
+            if (addMemberModal) addMemberModal.classList.add('show');
+            if (newMemberInput) {
+                newMemberInput.value = '';
+                setTimeout(function() { newMemberInput.focus(); }, 100);
+            }
+        }
+
+        var addBtn1 = document.getElementById('add-member-btn');
+        if (addBtn1) addBtn1.addEventListener('click', openAddMemberModal);
+        var addBtn2 = document.getElementById('contrib-add-member-btn');
+        if (addBtn2) addBtn2.addEventListener('click', openAddMemberModal);
+
+        if (modalCancel) modalCancel.addEventListener('click', function() {
+            if (addMemberModal) addMemberModal.classList.remove('show');
+        });
+
+        if (modalConfirm) modalConfirm.addEventListener('click', function() {
+            var name = newMemberInput.value.trim();
+            if (name) {
+                addMember(name);
+                if (addMemberModal) addMemberModal.classList.remove('show');
+            } else { newMemberInput.focus(); }
+        });
+
+        if (newMemberInput) {
+            newMemberInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (modalConfirm) modalConfirm.click();
+                } else if (e.key === 'Escape') {
+                    if (addMemberModal) addMemberModal.classList.remove('show');
+                }
+            });
+        }
+
+        if (addMemberModal) {
+            addMemberModal.addEventListener('click', function(e) {
+                if (e.target === addMemberModal) addMemberModal.classList.remove('show');
+            });
+        }
+
+        // ==================== 搜索 ====================
+        var searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) { renderTable(e.target.value); });
+        }
+
+        var contribSearchInput = document.getElementById('contrib-search-input');
+        if (contribSearchInput) {
+            contribSearchInput.addEventListener('input', function(e) { renderContributionTable(e.target.value); });
+        }
+
+        // ==================== Tab 切换 ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.querySelectorAll('.nav-item[data-tab]').forEach(function(n) { n.classList.remove('active'); });
+
+            var tabBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+            if (tabBtn) tabBtn.classList.add('active');
+            var tabContent = document.getElementById(tab + '-tab');
+            if (tabContent) tabContent.classList.add('active');
+            var navItem = document.querySelector('.nav-item[data-tab="' + tab + '"]');
+            if (navItem) navItem.classList.add('active');
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() { switchTab(btn.dataset.tab); });
+        });
+
+        // ==================== 浮动装饰 ====================
+        function createDecorations() {
+            var container = document.getElementById('decorations');
+            if (!container) return;
+            var emojis = ['\uD83C\uDF53', '\uD83C\uDF38', '\uD83C\uDF53', '\u2728', '\uD83C\uDF53', '\uD83C\uDF80'];
+            for (var i = 0; i < 8; i++) {
+                var span = document.createElement('span');
+                span.className = 'floating-decor';
+                span.textContent = emojis[i % emojis.length];
+                span.style.left = Math.random() * 100 + '%';
+                span.style.animationDelay = Math.random() * 15 + 's';
+                span.style.animationDuration = (10 + Math.random() * 10) + 's';
+                span.style.fontSize = (1.5 + Math.random() * 1.5) + 'rem';
+                container.appendChild(span);
+            }
+        }
+
+        // ==================== 背景音乐：だんご大家族 ====================
+        var NOTE_FREQ = {
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'G5': 783.99, 'A5': 880.00,
+            'R': 0
+        };
+
+        // だんご大家族 旋律（简谱 1=E 转调至 1=C：6-5-1-1-2-2-3-1-5-6）
+        var melody = [
+            // だんご だんご だんご だんご だんご大家族
+            ['A3', 0.3], ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // やんちゃな焼き饼
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['A3', 0.55],
+            // ぽんぽんぽん
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // きれいな君は
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['C4', 0.3], ['A3', 0.55],
+            // 何を考えて
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // 何をめめる
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['D4', 0.3], ['A3', 0.55],
+            // 未来はいつも
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // ぼくらの手の中
+            ['G3', 0.3], ['C4', 0.15], ['C4', 0.15], ['D4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // だんご大家族
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // やきもちやきの
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // だんごだんご
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['D4', 0.3], ['E4', 0.3], ['C4', 0.3], ['G3', 0.3], ['A3', 0.55],
+            // だんご大家族
+            ['G3', 0.3], ['C4', 0.3], ['C4', 0.3], ['D4', 0.3], ['C4', 0.8],
+            // 間奏
+            ['R', 0.5]
+        ];
+
+        // 贝斯线：C-G-Am-F 经典和弦进行
+        var bassLine = [
+            ['C3', 0.8], ['G3', 0.8], ['C3', 0.8], ['G3', 0.8],
+            ['C3', 0.8], ['G3', 0.8], ['C3', 0.8], ['G3', 0.8],
+            ['G3', 0.8], ['D3', 0.8], ['G3', 0.8], ['D3', 0.8],
+            ['G3', 0.8], ['D3', 0.8], ['G3', 0.8], ['D3', 0.8],
+            ['F3', 0.8], ['C3', 0.8], ['F3', 0.8], ['C3', 0.8],
+            ['F3', 0.8], ['C3', 0.8], ['F3', 0.8], ['C3', 0.8],
+            ['C3', 0.8], ['G3', 0.8], ['C3', 0.8], ['G3', 0.8],
+            ['C3', 0.8], ['G3', 0.8], ['C3', 0.8], ['G3', 0.8],
+            ['G3', 0.8], ['D3', 0.8], ['G3', 0.8], ['D3', 0.8],
+            ['F3', 0.8], ['G3', 0.8], ['C3', 1.6]
+        ];
+
+        var audioContext = null;
+        var isPlaying = false;
+        var melodyTimer = null;
+        var masterGain = null;
+
+        function initAudio() {
+            if (audioContext) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioContext.createGain();
+            masterGain.gain.value = 0.18;
+            masterGain.connect(audioContext.destination);
+        }
+
+        function playNote(freq, startTime, duration, type, vol) {
+            type = type || 'triangle';
+            vol = vol || 0.3;
+            if (freq === 0) return;
+            var osc = audioContext.createOscillator();
+            var gain = audioContext.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            var attackTime = 0.03;
+            var decayTime = 0.08;
+            var sustainLevel = 0.6;
+            var releaseTime = 0.1;
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(vol, startTime + attackTime);
+            gain.gain.linearRampToValueAtTime(vol * sustainLevel, startTime + attackTime + decayTime);
+            gain.gain.setValueAtTime(vol * sustainLevel, startTime + duration - releaseTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+
+            var osc2 = audioContext.createOscillator();
+            var gain2 = audioContext.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.value = freq * 2;
+            gain2.gain.setValueAtTime(0, startTime);
+            gain2.gain.linearRampToValueAtTime(vol * 0.15, startTime + attackTime);
+            gain2.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc2.connect(gain2);
+            gain2.connect(masterGain);
+            osc2.start(startTime);
+            osc2.stop(startTime + duration);
+        }
+
+        function playBassNote(freq, startTime, duration) {
+            if (freq === 0) return;
+            var osc = audioContext.createOscillator();
+            var gain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+            gain.gain.setValueAtTime(0.2, startTime + duration - 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playMelodyLoop() {
+            if (!isPlaying || !audioContext) return;
+            var time = audioContext.currentTime + 0.05;
+            var totalDuration = 0;
+            melody.forEach(function(pair) {
+                var freq = NOTE_FREQ[pair[0]] || 0;
+                playNote(freq, time + totalDuration, pair[1] * 0.95);
+                totalDuration += pair[1];
+            });
+            var bassTime = 0;
+            bassLine.forEach(function(pair) {
+                var freq = NOTE_FREQ[pair[0]] || 0;
+                playBassNote(freq, time + bassTime, pair[1] * 0.95);
+                bassTime += pair[1];
+            });
+            var loopDuration = Math.max(totalDuration, bassTime);
+            melodyTimer = setTimeout(function() {
+                if (isPlaying) playMelodyLoop();
+            }, loopDuration * 1000);
+        }
+
+        function startMusic() {
+            initAudio();
+            if (audioContext.state === 'suspended') audioContext.resume();
+            isPlaying = true;
+            playMelodyLoop();
+            var btn = document.getElementById('music-toggle');
+            if (btn) { btn.classList.add('playing'); btn.textContent = '\u23F8'; }
+            var status = document.getElementById('music-status');
+            if (status) status.innerHTML = '<span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span> 正在播放《だんご大家族》';
+        }
+
+        function stopMusic() {
+            isPlaying = false;
+            if (melodyTimer) { clearTimeout(melodyTimer); melodyTimer = null; }
+            if (audioContext) audioContext.suspend();
+            var btn = document.getElementById('music-toggle');
+            if (btn) { btn.classList.remove('playing'); btn.textContent = '\uD83C\uDFB5'; }
+            var status = document.getElementById('music-status');
+            if (status) status.textContent = '已暂停 · 点击恢复';
+        }
+
+        var musicToggleBtn = document.getElementById('music-toggle');
+        if (musicToggleBtn) {
+            musicToggleBtn.addEventListener('click', function() {
+                if (isPlaying) stopMusic(); else startMusic();
+            });
+        }
+
+        function tryAutoplay() {
+            initAudio();
+            if (audioContext.state === 'suspended') {
+                var status = document.getElementById('music-status');
+                if (status) status.innerHTML = '\uD83C\uDFB5 点击此处播放《だんご大家族》';
+                var startOnInteraction = function() {
+                    startMusic();
+                    document.removeEventListener('click', startOnInteraction);
+                    document.removeEventListener('keydown', startOnInteraction);
+                    document.removeEventListener('touchstart', startOnInteraction);
+                };
+                document.addEventListener('click', startOnInteraction);
+                document.addEventListener('keydown', startOnInteraction);
+                document.addEventListener('touchstart', startOnInteraction);
+            } else {
+                startMusic();
+            }
+        }
+
+        // ==================== PWA ====================
+        var deferredPrompt = null;
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!isStandalone()) {
+                setTimeout(function() {
+                    var banner = document.getElementById('install-banner');
+                    if (banner && !sessionStorage.getItem('install-dismissed')) {
+                        banner.classList.add('show');
+                    }
+                }, 3000);
+            }
+        });
+
+        var installBtn = document.getElementById('install-btn');
+        if (installBtn) {
+            installBtn.addEventListener('click', async function() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    var banner = document.getElementById('install-banner');
+                    if (banner) banner.classList.remove('show');
+                }
+            });
+        }
+
+        var installClose = document.getElementById('install-close');
+        if (installClose) {
+            installClose.addEventListener('click', function() {
+                var banner = document.getElementById('install-banner');
+                if (banner) banner.classList.remove('show');
+                sessionStorage.setItem('install-dismissed', '1');
+            });
+        }
+
+        window.addEventListener('appinstalled', function() {
+            var banner = document.getElementById('install-banner');
+            if (banner) banner.classList.remove('show');
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js?v=23', { updateViaCache: 'none' })
+                    .then(function(reg) {
+                        reg.addEventListener('updatefound', function() {
+                            var newWorker = reg.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', function() {
+                                    if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        });
+                        // 强制检查更新
+                        reg.update();
+                    })
+                    .catch(function(err) { console.log('SW 注册失败:', err); });
+            });
+
+            var refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                if (!refreshing) { refreshing = true; window.location.reload(); }
+            });
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'SW_UPDATED') {
+                    window.location.reload();
+                }
+            });
+        }
+
+        // ==================== 底部导航 ====================
+        function initBottomNav() {
+            var isMobile = window.matchMedia('(max-width: 768px)').matches;
+            var bottomNav = document.getElementById('bottom-nav');
+            if (!bottomNav) return;
+
+            if (isMobile) {
+                bottomNav.classList.add('show');
+                document.body.classList.add('app-mode');
+            }
+
+            document.querySelectorAll('.nav-item[data-tab]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    switchTab(item.dataset.tab);
+                });
+            });
+
+            var navMusic = document.getElementById('nav-music');
+            if (navMusic) {
+                navMusic.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+                    navMusic.classList.add('active');
+                    if (isPlaying) stopMusic(); else startMusic();
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                var mobile = window.matchMedia('(max-width: 768px)').matches;
+                if (mobile) {
+                    bottomNav.classList.add('show');
+                    document.body.classList.add('app-mode');
+                } else {
+                    bottomNav.classList.remove('show');
+                    document.body.classList.remove('app-mode');
+                }
+            });
+        }
+
+        // ==================== 初始化 ====================
+        function init() {
+            try {
+                createDecorations();
+                createSyncIndicator();
+                updateSyncStatus('connecting');
+                renderAll();
+                initBottomNav();
+                var updateMonth = document.getElementById('update-month');
+                if (updateMonth) updateMonth.textContent = currentYear + '年' + (currentMonth + 1) + '月';
+                setTimeout(tryAutoplay, 500);
+                setInterval(function() {
+                    if (!isSyncing) loadFromCloud();
+                }, 3000);
+            } catch (e) {
+                console.error('初始化失败:', e);
+                document.body.innerHTML += '<div style="position:fixed;bottom:20px;left:20px;right:20px;background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:9999;font-size:14px;color:#DA8FA5;">页面加载遇到问题，请刷新重试。如问题持续，请清除浏览器缓存后重新打开。</div>';
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

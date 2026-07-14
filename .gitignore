@@ -1,0 +1,6 @@
+node_modules/
+package-lock.json
+.env
+cloud-data.json
+.workbuddy/
+.DS_Store

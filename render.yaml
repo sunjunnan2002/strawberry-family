@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: strawberry-family
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: "echo no-build-step"
+    startCommand: "node server.js"
+    healthCheckPath: "/api/health"
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
