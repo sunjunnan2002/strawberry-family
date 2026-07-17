@@ -105,30 +105,18 @@ async function supabaseGet() {
 }
 
 async function supabaseUpsert(data) {
-    // 先尝试更新 id=1 这一行
-    const patch = await fetch(`${SUPABASE_URL}/rest/v1/family_data?id=eq.1`, {
-        method: 'PATCH',
-        headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ data })
-    });
-    if (patch.ok) return;
-    // 行不存在则插入
-    const post = await fetch(`${SUPABASE_URL}/rest/v1/family_data`, {
+    // 用 Supabase upsert 语义：id=1 存在则更新，不存在则插入（避免 PATCH 对空行误判成功）
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/family_data?on_conflict=id`, {
         method: 'POST',
         headers: {
             'apikey': SUPABASE_ANON_KEY,
             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'resolution=merge-duplicates,return=minimal'
         },
         body: JSON.stringify({ id: 1, data })
     });
-    if (!post.ok) throw new Error('supabase_upsert_' + post.status);
+    if (!r.ok) throw new Error('supabase_upsert_' + r.status);
 }
 
 // 读取数据：Supabase 优先，失败回退本地文件
