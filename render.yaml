@@ -4,12 +4,12 @@ services:
     runtime: node
     plan: free
     region: oregon
-    branch: main
+    branch: master
     buildCommand: "echo no-build-step"
     startCommand: "node server.js"
     healthCheckPath: "/api/health"
     envVars:
       - key: SUPABASE_URL
-        sync: false
+        value: "https://yrvdqskkwpbzvjzeuaof.supabase.co"
       - key: SUPABASE_ANON_KEY
-        sync: false
+        value: "sb_publishable_TfFu2CYy2pxpavJOg_zJ_g_3Chb_BQ3"
