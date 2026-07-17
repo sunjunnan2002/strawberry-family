@@ -29,6 +29,8 @@ CREATE TABLE family_data (
 );
 GRANT ALL ON family_data TO anon;
 GRANT ALL ON family_data TO authenticated;
+-- 关闭行级安全，允许 anon key 直接读写（家族战数据本就公开共享）
+ALTER TABLE family_data DISABLE ROW LEVEL SECURITY;
 ```
 
 5. 左上角点项目名，进 **Project Settings** → **API**：
