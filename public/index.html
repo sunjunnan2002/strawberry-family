@@ -1154,7 +1154,11 @@
         loadContributionFromStorage();
 
         // ==================== 云端同步（多人实时编辑模式） ====================
-        var API_BASE = null;
+        var API_BASE = '';
+        var SUPABASE_URL = 'https://yrvdqskkwpbzvjzeuaof.supabase.co';
+        var SUPABASE_KEY = 'sb_publishable_TfFu2CYy2pxpavJOg_zJ_g_3Chb_BQ3';
+        var SUPABASE_TABLE = 'family_data';
+        var SUPABASE_ROW_ID = 1;
         var lastCloudUpdate = null;
         var isSyncing = false;
         var isSaving = false;
@@ -1239,13 +1243,11 @@
         async function sendHeartbeat() {
             if (API_BASE === null) return;
             try {
-                var resp = await fetch(API_BASE + '/api/heartbeat', {
-                    method: 'POST',
+                var resp = await fetch(SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLE + '?id=eq.' + SUPABASE_ROW_ID + '&select=id&limit=1', {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'bypass-tunnel-reminder': 'true',
-                        'X-User-Id': userId,
-                        'X-User-Name': userName
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY
                     },
                     signal: AbortSignal.timeout(5000)
                 });
@@ -1277,27 +1279,30 @@
             if (saveTimer) clearTimeout(saveTimer);
             saveTimer = setTimeout(async function() {
                 if (isSaving) { pendingSave = true; return; }
-                if (API_BASE === null) { pendingSave = true; return; }
                 isSaving = true;
                 ensureTimestamps();
                 try {
                     updateSyncStatus('syncing');
-                    var response = await fetch(API_BASE + '/api/data', {
+                    var response = await fetch(SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLE + '?on_conflict=id', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'bypass-tunnel-reminder': 'true',
-                            'X-User-Id': userId,
-                            'X-User-Name': userName
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_KEY,
+                            'Prefer': 'resolution=merge-duplicates,return=minimal'
                         },
                         body: JSON.stringify({
-                            month: currentYear + '-' + currentMonth,
-                            battleMembers: members,
-                            contributionMembers: contributionMembers
+                            id: SUPABASE_ROW_ID,
+                            data: {
+                                month: currentYear + '-' + currentMonth,
+                                battleMembers: members,
+                                contributionMembers: contributionMembers,
+                                lastUpdated: new Date().toISOString()
+                            }
                         })
                     });
-                    if (response.ok) {
-                        var result = await response.json();
+                    if (response.ok || response.status === 201) {
+                        lastCloudUpdate = new Date().toISOString();
                         if (result.lastUpdated) lastCloudUpdate = result.lastUpdated;
                         updateSyncStatus('synced');
                     } else {
@@ -1314,7 +1319,7 @@
         // 从云端加载（智能同步：只保护当前正在编辑的单元格，其余正常更新）
         async function loadFromCloud() {
             if (isSyncing) return;
-            if (API_BASE === null) { await fetchConfig(); if (API_BASE === null) return; }
+            // 直连模式，无需加载配置
 
             // 记录当前正在编辑的单元格
             var activeEl = document.activeElement;
@@ -1330,15 +1335,17 @@
 
             isSyncing = true;
             try {
-                var response = await fetch(API_BASE + '/api/data', {
+                var response = await fetch(SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLE + '?id=eq.' + SUPABASE_ROW_ID + '&select=*', {
                     headers: {
-                        'bypass-tunnel-reminder': 'true',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY,
                         'Accept': 'application/json'
                     },
                     signal: AbortSignal.timeout(8000)
                 });
                 if (response.ok) {
-                    var data = await response.json();
+                    var arr = await response.json();
+                    var data = (arr && arr.length > 0) ? arr[0].data : null;
 
                     // 云端数据没变化则跳过
                     if (data.lastUpdated && lastCloudUpdate && data.lastUpdated === lastCloudUpdate) {
