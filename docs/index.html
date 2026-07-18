@@ -711,6 +711,9 @@
         .editable { cursor: text; transition: background 0.2s ease; }
         .editable:hover { background: #FFF9C4 !important; outline: 2px dashed #F4A8C0; outline-offset: -2px; }
         .editable:focus { background: #FFFFFF !important; outline: 2px solid #E891A8; outline-offset: -2px; }
+        td.name-col.editable { color: #5A3A47; cursor: text; }
+        td.name-col.editable:hover { background: #FFF9C4 !important; color: #5A3A47 !important; }
+        td.name-col.editable:focus { background: #FFFFFF !important; color: #5A3A47 !important; outline: 2px solid #E891A8; outline-offset: -2px; }
 
         @keyframes cellFlash {
             0% { background: #C8E6C9 !important; box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); }
@@ -1627,8 +1630,14 @@
                 else if (status === 'warning') tr.classList.add('row-warning');
 
                 var nameTd = document.createElement('td');
-                nameTd.className = 'name-col';
+                nameTd.className = 'name-col editable';
+                nameTd.contentEditable = 'true';
+                nameTd.dataset.memberIndex = member.originalIndex;
                 nameTd.textContent = member.name;
+                nameTd.addEventListener('blur', handleBattleNameEdit);
+                nameTd.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); nameTd.blur(); }
+                });
                 tr.appendChild(nameTd);
 
                 member.values.forEach(function(val, idx) {
@@ -1719,6 +1728,23 @@
             saveBattleToStorage();
         }
 
+        function handleBattleNameEdit(e) {
+            var td = e.target;
+            var memberIdx = parseInt(td.dataset.memberIndex);
+            var newName = td.textContent.trim();
+            if (!newName) {
+                td.textContent = members[memberIdx].name;
+                return;
+            }
+            if (newName !== members[memberIdx].name) {
+                members[memberIdx].name = newName;
+                var si = document.getElementById('search-input');
+                renderTable(si ? si.value : '');
+                renderStats();
+                saveBattleToStorage();
+            }
+        }
+
         // ==================== 贡献值表格渲染 ====================
         var contribSortColumn = 'firstValue';
         var contribSortDirection = -1; // 默认降序
@@ -1794,8 +1820,14 @@
                 var tr = document.createElement('tr');
 
                 var nameTd = document.createElement('td');
-                nameTd.className = 'name-col';
+                nameTd.className = 'name-col editable';
+                nameTd.contentEditable = 'true';
+                nameTd.dataset.memberIndex = member.originalIndex;
                 nameTd.textContent = member.name;
+                nameTd.addEventListener('blur', handleContribNameEdit);
+                nameTd.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); nameTd.blur(); }
+                });
                 tr.appendChild(nameTd);
 
                 // 第一次贡献值
@@ -1912,6 +1944,23 @@
             renderContributionTable(csi ? csi.value : '');
             renderContributionStats();
             saveContributionToStorage();
+        }
+
+        function handleContribNameEdit(e) {
+            var td = e.target;
+            var memberIdx = parseInt(td.dataset.memberIndex);
+            var newName = td.textContent.trim();
+            if (!newName) {
+                td.textContent = contributionMembers[memberIdx].name;
+                return;
+            }
+            if (newName !== contributionMembers[memberIdx].name) {
+                contributionMembers[memberIdx].name = newName;
+                var csi = document.getElementById('contrib-search-input');
+                renderContributionTable(csi ? csi.value : '');
+                renderContributionStats();
+                saveContributionToStorage();
+            }
         }
 
         // ==================== 贡献值统计 ====================
