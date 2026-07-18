@@ -715,6 +715,11 @@
         td.name-col.editable:hover { background: #FFF9C4 !important; color: #5A3A47 !important; }
         td.name-col.editable:focus { background: #FFFFFF !important; color: #5A3A47 !important; outline: 2px solid #E891A8; outline-offset: -2px; }
 
+        /* 名字单元格：双击编辑模式 */
+        td.name-col.name-editable { color: #5A3A47; cursor: pointer; }
+        td.name-col.name-editable:hover { background: #FBD8E2 !important; outline: 2px dashed #F4A8C0; outline-offset: -2px; }
+        td.name-col.name-editable.editing { background: #FFFFFF !important; color: #5A3A47 !important; outline: 2px solid #E891A8; outline-offset: -2px; cursor: text; }
+
         @keyframes cellFlash {
             0% { background: #C8E6C9 !important; box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); }
             50% { background: #A5D6A7 !important; box-shadow: 0 0 12px rgba(76, 175, 80, 0.8); }
@@ -1168,6 +1173,7 @@
         var syncIndicator = null;
         var onlineIndicator = null;
         var pendingSave = false;
+        var editingActive = false; // 正在编辑名字时为真，暂停云端同步以防打断编辑
 
         // 用户身份（每个浏览器唯一）
         var userId = localStorage.getItem('strawberry-user-id');
@@ -1322,6 +1328,7 @@
         // 从云端加载（智能同步：只保护当前正在编辑的单元格，其余正常更新）
         async function loadFromCloud() {
             if (isSyncing) return;
+            if (editingActive) return; // 正在编辑名字，跳过本轮同步，避免打断
             // 直连模式，无需加载配置
 
             // 记录当前正在编辑的单元格
@@ -1630,13 +1637,13 @@
                 else if (status === 'warning') tr.classList.add('row-warning');
 
                 var nameTd = document.createElement('td');
-                nameTd.className = 'name-col editable';
-                nameTd.contentEditable = 'true';
+                nameTd.className = 'name-col name-editable';
                 nameTd.dataset.memberIndex = member.originalIndex;
+                nameTd.dataset.origName = member.name;
                 nameTd.textContent = member.name;
-                nameTd.addEventListener('blur', handleBattleNameEdit);
-                nameTd.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') { e.preventDefault(); nameTd.blur(); }
+                nameTd.title = '双击编辑名字';
+                nameTd.addEventListener('dblclick', function() {
+                    beginNameEdit(nameTd, handleBattleNameEdit);
                 });
                 tr.appendChild(nameTd);
 
@@ -1726,6 +1733,38 @@
             renderTable(si ? si.value : '');
             renderStats();
             saveBattleToStorage();
+        }
+
+        // 双击进入名字编辑模式：聚焦并选中全部文字，编辑中暂停云端同步
+        function beginNameEdit(td, saveHandler) {
+            if (editingActive) return;
+            editingActive = true;
+            td.dataset.origName = td.textContent;
+            td.contentEditable = 'true';
+            td.classList.add('editing');
+            td.focus();
+            try {
+                var range = document.createRange();
+                range.selectNodeContents(td);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } catch (e) {}
+
+            function onBlur() {
+                td.removeEventListener('blur', onBlur);
+                td.removeEventListener('keydown', onKey);
+                td.contentEditable = 'false';
+                td.classList.remove('editing');
+                editingActive = false;
+                saveHandler({ target: td });
+            }
+            function onKey(e) {
+                if (e.key === 'Enter') { e.preventDefault(); td.blur(); }
+                else if (e.key === 'Escape') { e.preventDefault(); td.textContent = td.dataset.origName; td.blur(); }
+            }
+            td.addEventListener('blur', onBlur);
+            td.addEventListener('keydown', onKey);
         }
 
         function handleBattleNameEdit(e) {
@@ -1820,13 +1859,13 @@
                 var tr = document.createElement('tr');
 
                 var nameTd = document.createElement('td');
-                nameTd.className = 'name-col editable';
-                nameTd.contentEditable = 'true';
+                nameTd.className = 'name-col name-editable';
                 nameTd.dataset.memberIndex = member.originalIndex;
+                nameTd.dataset.origName = member.name;
                 nameTd.textContent = member.name;
-                nameTd.addEventListener('blur', handleContribNameEdit);
-                nameTd.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') { e.preventDefault(); nameTd.blur(); }
+                nameTd.title = '双击编辑名字';
+                nameTd.addEventListener('dblclick', function() {
+                    beginNameEdit(nameTd, handleContribNameEdit);
                 });
                 tr.appendChild(nameTd);
 
