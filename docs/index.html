@@ -27,7 +27,7 @@
         }
 
         body {
-            font-family: "SimHei", "黑体", "Microsoft YaHei", "STHeiti", sans-serif;
+            font-family: "MitsuGirl", "SimHei", "黑体", "Microsoft YaHei", "STHeiti", sans-serif;
             background: linear-gradient(135deg, #FFFBFC 0%, #FFF0F5 50%, #FBD8E2 100%);
             min-height: 100vh;
             color: #A87A8C;
@@ -208,7 +208,7 @@
 
         .tab-btn {
             padding: 12px 32px;
-            border: 2px solid #F4A8C0;
+            border: 2px solid #FBD8E2;
             border-radius: 25px;
             background: rgba(255, 255, 255, 0.8);
             font-family: "MitsuGirl", "SimHei", "黑体", sans-serif;
@@ -386,7 +386,7 @@
         .modal-box input {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #F4A8C0;
+            border: 2px solid #FBD8E2;
             border-radius: 10px;
             font-family: "MitsuGirl", "SimHei", "黑体", sans-serif;
             font-size: 1rem;
@@ -426,7 +426,7 @@
 
         .search-box input {
             padding: 10px 16px 10px 40px;
-            border: 2px solid #F4A8C0;
+            border: 2px solid #FBD8E2;
             border-radius: 25px;
             font-family: "MitsuGirl", "SimHei", "黑体", sans-serif;
             font-size: 0.9rem;
@@ -454,7 +454,7 @@
         .table-wrapper {
             overflow-x: auto;
             border-radius: 12px;
-            border: 2px solid #F4A8C0;
+            border: 2px solid #FBD8E2;
         }
 
         table {
@@ -466,7 +466,7 @@
         thead { position: sticky; top: 0; z-index: 10; }
 
         th {
-            background: #F4A8C0;
+            background: #FBD8E2;
             color: #FFFFFF;
             padding: 14px 12px;
             text-align: center;
@@ -478,7 +478,7 @@
             position: relative;
         }
 
-        th:hover { background: #E891A8; }
+        th:hover { background: #F4A8C0; }
 
         th::after {
             content: "\21C5";
@@ -491,54 +491,45 @@
             position: sticky;
             left: 0;
             z-index: 11;
-            background: #F4A8C0;
+            background: #FBD8E2;
             min-width: 140px;
         }
 
         td {
             padding: 12px;
             text-align: center;
-            border-bottom: 1px solid #F8E1E8;
+            border-bottom: 1px solid #FFF0F5;
             transition: background 0.2s ease;
-            color: #A87A8C;
         }
-
-        /* 斑马纹：奇偶行浅粉交替 */
-        tbody tr:nth-child(odd) td { background: #FFFBFC; }
-        tbody tr:nth-child(even) td { background: #FFF5F8; }
 
         td.name-col {
             position: sticky;
             left: 0;
             z-index: 5;
+            background: #FFFBFC;
             font-weight: bold;
             color: #DA8FA5;
             text-align: left;
             padding-left: 16px;
             min-width: 140px;
         }
-        tbody tr:nth-child(odd) td.name-col { background: #FFF0F5; }
-        tbody tr:nth-child(even) td.name-col { background: #FCE4EC; }
 
-        tbody tr:hover td { background: #FADCEB !important; }
-        tbody tr:hover td.name-col { background: #F4A8C0 !important; color: #FFFFFF !important; }
+        tbody tr:hover td { background: #FFF0F5; }
+        tbody tr:hover td.name-col { background: #FBD8E2; color: #FFFFFF; }
 
-        .honor-cell { font-weight: bold; color: #DA8FA5; }
-        tbody tr:nth-child(odd) .honor-cell { background: #FFF0F5; }
-        tbody tr:nth-child(even) .honor-cell { background: #FCE4EC; }
-        .honor-cell.has-value { color: #D46A90; background: #F8E1E8 !important; }
-
-        .empty-cell { color: #D4A0AB; opacity: 0.5; }
+        .honor-cell { background: #FFFBFC; font-weight: bold; color: #DA8FA5; }
+        .honor-cell.has-value { background: #FFF0F5; color: #D46A90; }
+        .empty-cell { color: #E2BCCA; opacity: 0.5; }
 
         .formula-cell { font-weight: bold; }
-        .formula-cell.good { color: #81C784; background: #F1F8E9; }
-        .formula-cell.warning { color: #E891A8; background: #FFF0F5; }
-        .formula-cell.danger { color: #D46A90; background: #FCE4EC; }
+        .formula-cell.good { color: #66BB6A; background: #E8F5E9; }
+        .formula-cell.warning { color: #FF7043; background: #FFF3E0; }
+        .formula-cell.danger { color: #EF5350; background: #FFEBEE; }
 
-        tr.row-warning td { background: #FFF3E0 !important; color: #E65100; }
-        tr.row-warning td.name-col { background: #FFE0B2 !important; color: #E65100 !important; }
-        tr.row-danger td { background: #FFEBEE !important; color: #C62828; }
-        tr.row-danger td.name-col { background: #FFCDD2 !important; color: #C62828 !important; }
+        tr.row-warning td { background: #FFF8E1 !important; }
+        tr.row-warning td.name-col { background: #FFE082 !important; color: #E65100 !important; }
+        tr.row-danger td { background: #FFEBEE !important; }
+        tr.row-danger td.name-col { background: #FFCDD2 !important; color: #B71C1C !important; }
 
         .note-section, .formula-info {
             background: rgba(255, 255, 255, 0.85);
@@ -772,10 +763,10 @@
         .table-wrapper::-webkit-scrollbar-thumb:hover { background: #E891A8; }
 
         .editable { cursor: text; transition: background 0.2s ease; }
-        .editable:hover { background: #FCE4EC !important; outline: 2px dashed #F4A8C0; outline-offset: -2px; }
+        .editable:hover { background: #FFF9C4 !important; outline: 2px dashed #F4A8C0; outline-offset: -2px; }
         .editable:focus { background: #FFFFFF !important; outline: 2px solid #E891A8; outline-offset: -2px; }
         td.name-col.editable { color: #5A3A47; cursor: text; }
-        td.name-col.editable:hover { background: #FCE4EC !important; color: #5A3A47 !important; }
+        td.name-col.editable:hover { background: #FFF9C4 !important; color: #5A3A47 !important; }
         td.name-col.editable:focus { background: #FFFFFF !important; color: #5A3A47 !important; outline: 2px solid #E891A8; outline-offset: -2px; }
 
         /* 名字单元格：双击编辑模式 */
@@ -809,10 +800,8 @@
     </style>
 </head>
 <body>
-    <!-- 背景音乐：だんご大家族（实体音频） -->
-    <audio id="bgm" src="audio/dango-daikazoku.mp3" loop preload="auto"></audio>
-
     <div id="decorations"></div>
+    <audio id="bgm" loop preload="auto" src="audio/dango-daikazoku.mp3"></audio>
 
     <div id="music-control">
         <button id="music-toggle" title="播放/暂停音乐">🎵</button>
@@ -929,12 +918,12 @@
             <section class="formula-info">
                 <h3>📝 公式自动生成说明</h3>
                 <div class="formula-item">
-                    <span class="formula-tag">COUNTA</span>
-                    <span class="formula-desc"><strong>一月内已参加次数</strong> = COUNTA(日期列) — 日期列里填了数字（有参战记录）的格子数量，即实际已参战次数</span>
-                </div>
-                <div class="formula-item">
                     <span class="formula-tag">(周五+周六)÷2</span>
                     <span class="formula-desc"><strong>总共需参加次数</strong> = (一个月内周五+周六天数) ÷ 2 — 家族战每周五周六开打，两周一打，自动计算当月应参加次数</span>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-tag">=COUNTA(日期列)</span>
+                    <span class="formula-desc"><strong>一月内已参加次数</strong> = 日期列里填了数字（有参战记录）的格子数量 — 自动统计当月实际参战天数</span>
                 </div>
                 <div class="formula-item">
                     <span class="formula-tag">MAX(0,需-COUNTA)</span>
@@ -1462,55 +1451,55 @@
                                 Array.isArray(m.values) && m.values.length === validLen;
                         });
                         if (!battleValid) {
-                            // 跨月或列数变了：重映射成员数据到当前日期结构
+                            // 跨月或列数变了：重映射成员到当前日期结构（保留名字与可对应的值）
                             members = battleData.map(function(m) {
                                 return { name: m.name, values: dates.map(function() { return null; }) };
                             });
-                            // 尝试按名字匹配迁移旧值
-                            var oldMembers = members.slice();
                             battleData.forEach(function(rm) {
-                                var lm = oldMembers.find(function(x) { return x.name === rm.name; });
+                                var lm = members.find(function(x) { return x.name === rm.name; });
                                 if (!lm || !rm.values) return;
-                                for (var mi = 0; mi < Math.min(rm.values.length, validLen); mi++) {
+                                for (var mi = 0; mi < Math.min(rm.values.length, dates.length); mi++) {
                                     if (rm.values[mi] !== null && rm.values[mi] !== undefined) {
                                         lm.values[mi] = rm.values[mi];
                                     }
                                 }
-                                if (rm.valueTimestamps) lm.valueTimestamps = rm.valueTimestamps.slice(0, validLen);
+                                if (rm.valueTimestamps) lm.valueTimestamps = rm.valueTimestamps.slice(0, dates.length);
                             });
-                            ensureTimestamps();
-                            changed = true;
-                        } else if (battleData.length !== members.length) {
-                            // 成员数量变了（增删成员），整体更新
-                            members = battleData;
                             ensureTimestamps();
                             changed = true;
                         } else {
-                            // 逐成员逐 cell 合并
-                            battleData.forEach(function(rm) {
-                                var lm = members.find(function(m) { return m.name === rm.name; });
-                                if (!lm) return;
-                                if (!lm.valueTimestamps) lm.valueTimestamps = lm.values.map(function() { return null; });
-                                var rmTs = rm.valueTimestamps || rm.values.map(function() { return null; });
+                            // 成员数量变了（增删成员），整体更新
+                            if (battleData.length !== members.length) {
+                                members = battleData;
+                                ensureTimestamps();
+                                changed = true;
+                            } else {
+                                // 逐成员逐 cell 合并
+                                battleData.forEach(function(rm) {
+                                    var lm = members.find(function(m) { return m.name === rm.name; });
+                                    if (!lm) return;
+                                    if (!lm.valueTimestamps) lm.valueTimestamps = lm.values.map(function() { return null; });
+                                    var rmTs = rm.valueTimestamps || rm.values.map(function() { return null; });
 
-                                for (var i = 0; i < rm.values.length; i++) {
-                                    // 跳过正在编辑的 cell
-                                    if (editingInfo && editingInfo.dateIndex === i &&
-                                        members[editingInfo.memberIndex] === lm) continue;
+                                    for (var i = 0; i < rm.values.length; i++) {
+                                        // 跳过正在编辑的 cell
+                                        if (editingInfo && editingInfo.dateIndex === i &&
+                                            members[editingInfo.memberIndex] === lm) continue;
 
-                                    var localTs = lm.valueTimestamps[i] || null;
-                                    var remoteTs = rmTs[i] || null;
+                                        var localTs = lm.valueTimestamps[i] || null;
+                                        var remoteTs = rmTs[i] || null;
 
-                                    if (remoteTs && (!localTs || new Date(remoteTs) > new Date(localTs))) {
-                                        if (lm.values[i] !== rm.values[i]) {
-                                            changedCellsInfo.push({ type: 'battle', name: lm.name, dateIndex: i });
-                                            lm.values[i] = rm.values[i];
-                                            changed = true;
+                                        if (remoteTs && (!localTs || new Date(remoteTs) > new Date(localTs))) {
+                                            if (lm.values[i] !== rm.values[i]) {
+                                                changedCellsInfo.push({ type: 'battle', name: lm.name, dateIndex: i });
+                                                lm.values[i] = rm.values[i];
+                                                changed = true;
+                                            }
+                                            lm.valueTimestamps[i] = remoteTs;
                                         }
-                                        lm.valueTimestamps[i] = remoteTs;
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
 
@@ -1685,9 +1674,9 @@
             theadRow.innerHTML =
                 '<th class="name-col" data-sort="name">姓名</th>' +
                 dates.map(function(d, i) { return '<th data-sort="' + i + '">' + d + '</th>'; }).join('') +
-                '<th data-sort="participatedCount">一月内已参加次数</th>' +
                 '<th data-sort="participated">总共需参加次数</th>' +
                 '<th data-sort="missed">一月内未参加次数</th>' +
+                '<th data-sort="participatedCount">一月内已参加次数</th>' +
                 '<th class="delete-col">删除</th>';
 
             theadRow.querySelectorAll('th').forEach(function(th) {
@@ -1724,10 +1713,10 @@
                         return a.name.localeCompare(b.name, 'zh-CN') * sortDirection;
                     } else if (sortColumn === 'participated') {
                         valA = calcParticipated(a); valB = calcParticipated(b);
-                    } else if (sortColumn === 'participatedCount') {
-                        valA = calcParticipated(a); valB = calcParticipated(b);
                     } else if (sortColumn === 'missed') {
                         valA = calcMissed(a); valB = calcMissed(b);
+                    } else if (sortColumn === 'participatedCount') {
+                        valA = calcParticipated(a); valB = calcParticipated(b);
                     } else {
                         var idx = parseInt(sortColumn);
                         valA = hasValue(a.values[idx]) ? Number(a.values[idx]) : -1;
@@ -1760,6 +1749,7 @@
                     td.contentEditable = 'true';
                     td.dataset.memberIndex = member.originalIndex;
                     td.dataset.dateIndex = idx;
+                    td.title = '点击编辑日期战值';
                     if (hasValue(val)) {
                         td.classList.add('has-value');
                         td.textContent = val;
@@ -1767,24 +1757,25 @@
                         td.classList.add('empty-cell');
                         td.textContent = '\u2014';
                     }
-                    td.addEventListener('blur', handleCellEdit);
+                    td.addEventListener('focus', function() { editingActive = true; });
+                    td.addEventListener('blur', function(e) { editingActive = false; handleCellEdit(e); });
                     td.addEventListener('keydown', function(e) {
                         if (e.key === 'Enter') { e.preventDefault(); td.blur(); }
                     });
-                    td.title = '点击编辑荣誉值（直接输入数字）';
-                    td.addEventListener('focus', function() { editingActive = true; });
-                    td.addEventListener('blur', function() { editingActive = false; });
                     tr.appendChild(td);
                 });
 
-                var participatedCount = calcParticipated(member);
-                var partCountTd = document.createElement('td');
-                partCountTd.className = 'formula-cell ' + status;
-                partCountTd.innerHTML = '<strong>' + participatedCount + '</strong><br><span style="font-size:0.7rem;opacity:0.7;">=COUNTA(日期列)</span>';
-                tr.appendChild(partCountTd);
-
                 var partTd = document.createElement('td');
                 partTd.className = 'formula-cell ' + status;
+                partTd.textContent = calcParticipated(member);
+                partTd.title = '公式: =COUNTA(日期列有数字的个数)';
+                tr.appendChild(partTd);
+
+                var pcTd = document.createElement('td');
+                pcTd.className = 'formula-cell good';
+                pcTd.textContent = calcParticipated(member);
+                pcTd.title = '公式: =COUNTA(日期列有数字的个数)';
+                tr.appendChild(pcTd);
                 partTd.innerHTML = '<strong>' + REQUIRED_COUNT + '</strong><br><span style="font-size:0.7rem;opacity:0.7;">=(周五+周六)/2</span>';
                 tr.appendChild(partTd);
 
@@ -2011,6 +2002,7 @@
                 firstTd.contentEditable = 'true';
                 firstTd.dataset.memberIndex = member.originalIndex;
                 firstTd.dataset.field = 'firstValue';
+                firstTd.title = '点击编辑贡献值';
                 if (hasValue(member.firstValue)) {
                     firstTd.classList.add('has-value');
                     firstTd.textContent = member.firstValue;
@@ -2018,13 +2010,11 @@
                     firstTd.classList.add('empty-cell');
                     firstTd.textContent = '\u2014';
                 }
-                firstTd.addEventListener('blur', handleContribCellEdit);
+                firstTd.addEventListener('focus', function() { editingActive = true; });
+                firstTd.addEventListener('blur', function(e) { editingActive = false; handleContribCellEdit(e); });
                 firstTd.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') { e.preventDefault(); firstTd.blur(); }
                 });
-                firstTd.title = '点击编辑月初贡献值';
-                firstTd.addEventListener('focus', function() { editingActive = true; });
-                firstTd.addEventListener('blur', function() { editingActive = false; });
                 tr.appendChild(firstTd);
 
                 // 第二次贡献值
@@ -2033,6 +2023,7 @@
                 secondTd.contentEditable = 'true';
                 secondTd.dataset.memberIndex = member.originalIndex;
                 secondTd.dataset.field = 'secondValue';
+                secondTd.title = '点击编辑贡献值';
                 if (hasValue(member.secondValue)) {
                     secondTd.classList.add('has-value');
                     secondTd.textContent = member.secondValue;
@@ -2040,13 +2031,11 @@
                     secondTd.classList.add('empty-cell');
                     secondTd.textContent = '\u2014';
                 }
-                secondTd.addEventListener('blur', handleContribCellEdit);
+                secondTd.addEventListener('focus', function() { editingActive = true; });
+                secondTd.addEventListener('blur', function(e) { editingActive = false; handleContribCellEdit(e); });
                 secondTd.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') { e.preventDefault(); secondTd.blur(); }
                 });
-                secondTd.title = '点击编辑月末贡献值';
-                secondTd.addEventListener('focus', function() { editingActive = true; });
-                secondTd.addEventListener('blur', function() { editingActive = false; });
                 tr.appendChild(secondTd);
 
                 // 月末贡献比例
@@ -2308,10 +2297,9 @@
             }
         }
 
-        // ==================== 背景音乐：だんご大家族（实体音频）====================
+                // ==================== 背景音乐：だんご大家族（实体音频）====================
         var bgm = document.getElementById('bgm');
         var isPlaying = false;
-
         function startMusic() {
             if (!bgm) return;
             bgm.volume = 0.5;
@@ -2328,15 +2316,196 @@
                 updateMusicUI(true);
             }
         }
-
         function stopMusic() {
             if (!bgm) return;
             bgm.pause();
             isPlaying = false;
             updateMusicUI(false);
         }
-
         function updateMusicUI(playing) {
             var btn = document.getElementById('music-toggle');
             if (btn) {
-                if (playing) { btn.classList.add('playing'); btn.textContent = '⏸'; }
+                if (playing) { btn.classList.add('playing'); btn.textContent = '\u23F8'; }
+                else { btn.classList.remove('playing'); btn.textContent = '\uD83C\uDFB5'; }
+            }
+            var status = document.getElementById('music-status');
+            if (status) {
+                if (playing) {
+                    status.innerHTML = '<span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span> 正在播放《だんご大家族》';
+                } else {
+                    status.textContent = '已暂停 · 点击恢复';
+                }
+            }
+        }
+        if (bgm) {
+            bgm.addEventListener('ended', function() {
+                if (isPlaying) { bgm.currentTime = 0; bgm.play().catch(function(){}); }
+            });
+        }
+        var musicToggleBtn = document.getElementById('music-toggle');
+        if (musicToggleBtn) {
+            musicToggleBtn.addEventListener('click', function() {
+                if (isPlaying) stopMusic(); else startMusic();
+            });
+        }
+        function tryAutoplay() {
+            if (!bgm) return;
+            var startOnInteraction = function() {
+                startMusic();
+                document.removeEventListener('click', startOnInteraction);
+                document.removeEventListener('keydown', startOnInteraction);
+                document.removeEventListener('touchstart', startOnInteraction);
+            };
+            document.addEventListener('click', startOnInteraction, { once: true });
+            document.addEventListener('keydown', startOnInteraction, { once: true });
+            document.addEventListener('touchstart', startOnInteraction, { once: true });
+        }
+
+        // ==================== PWA ====================
+        var deferredPrompt = null;
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!isStandalone()) {
+                setTimeout(function() {
+                    var banner = document.getElementById('install-banner');
+                    if (banner && !sessionStorage.getItem('install-dismissed')) {
+                        banner.classList.add('show');
+                    }
+                }, 3000);
+            }
+        });
+
+        var installBtn = document.getElementById('install-btn');
+        if (installBtn) {
+            installBtn.addEventListener('click', async function() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    var banner = document.getElementById('install-banner');
+                    if (banner) banner.classList.remove('show');
+                }
+            });
+        }
+
+        var installClose = document.getElementById('install-close');
+        if (installClose) {
+            installClose.addEventListener('click', function() {
+                var banner = document.getElementById('install-banner');
+                if (banner) banner.classList.remove('show');
+                sessionStorage.setItem('install-dismissed', '1');
+            });
+        }
+
+        window.addEventListener('appinstalled', function() {
+            var banner = document.getElementById('install-banner');
+            if (banner) banner.classList.remove('show');
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js?v=23', { updateViaCache: 'none' })
+                    .then(function(reg) {
+                        reg.addEventListener('updatefound', function() {
+                            var newWorker = reg.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', function() {
+                                    if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        });
+                        // 强制检查更新
+                        reg.update();
+                    })
+                    .catch(function(err) { console.log('SW 注册失败:', err); });
+            });
+
+            var refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                if (!refreshing) { refreshing = true; window.location.reload(); }
+            });
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'SW_UPDATED') {
+                    window.location.reload();
+                }
+            });
+        }
+
+        // ==================== 底部导航 ====================
+        function initBottomNav() {
+            var isMobile = window.matchMedia('(max-width: 768px)').matches;
+            var bottomNav = document.getElementById('bottom-nav');
+            if (!bottomNav) return;
+
+            if (isMobile) {
+                bottomNav.classList.add('show');
+                document.body.classList.add('app-mode');
+            }
+
+            document.querySelectorAll('.nav-item[data-tab]').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    switchTab(item.dataset.tab);
+                });
+            });
+
+            var navMusic = document.getElementById('nav-music');
+            if (navMusic) {
+                navMusic.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+                    navMusic.classList.add('active');
+                    if (isPlaying) stopMusic(); else startMusic();
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                var mobile = window.matchMedia('(max-width: 768px)').matches;
+                if (mobile) {
+                    bottomNav.classList.add('show');
+                    document.body.classList.add('app-mode');
+                } else {
+                    bottomNav.classList.remove('show');
+                    document.body.classList.remove('app-mode');
+                }
+            });
+        }
+
+        // ==================== 初始化 ====================
+        function init() {
+            try {
+                createDecorations();
+                createSyncIndicator();
+                updateSyncStatus('connecting');
+                renderAll();
+                initBottomNav();
+                var updateMonth = document.getElementById('update-month');
+                if (updateMonth) updateMonth.textContent = currentYear + '年' + (currentMonth + 1) + '月';
+                setTimeout(tryAutoplay, 500);
+                setInterval(function() {
+                    if (!isSyncing) loadFromCloud();
+                }, 3000);
+            } catch (e) {
+                console.error('初始化失败:', e);
+                document.body.innerHTML += '<div style="position:fixed;bottom:20px;left:20px;right:20px;background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:9999;font-size:14px;color:#DA8FA5;">页面加载遇到问题，请刷新重试。如问题持续，请清除浏览器缓存后重新打开。</div>';
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
