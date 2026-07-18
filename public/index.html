@@ -45,34 +45,41 @@
             100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
+        /* ===== 顶部状态栏（音乐 + 同步 + 在线）===== */
         #music-control {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
+            top: calc(10px + env(safe-area-inset-top, 0px));
             z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 30px;
-            padding: 8px 16px;
-            box-shadow: 0 2px 12px rgba(244, 143, 177, 0.3);
-            backdrop-filter: blur(10px);
+            gap: 8px;
+            background: rgba(255, 251, 252, 0.92);
+            border-radius: 20px;
+            padding: 6px 12px;
+            box-shadow: 0 2px 12px rgba(244, 143, 177, 0.2);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 216, 226, 0.5);
+            flex-wrap: nowrap;
+            max-width: calc(100vw - 20px);
         }
 
         #music-toggle {
             background: linear-gradient(135deg, #F4A8C0, #E891A8);
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 0.95rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             color: white;
+            flex-shrink: 0;
         }
 
         #music-toggle:hover {
@@ -90,9 +97,40 @@
         }
 
         #music-status {
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             color: #A87A8C;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+            flex-shrink: 1;
+        }
+
+        /* 同步 / 在线 徽章 —— 放在音乐控件内部 */
+        .sync-badge, .online-badge {
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-family: "SimHei", "黑体", sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .sync-badge {
+            background: rgba(251, 216, 226, 0.6);
+            color: #A87A8C;
+            border: 1px solid rgba(232, 145, 168, 0.15);
+        }
+        .sync-badge.syncing { color: #DA8FA5; background: rgba(232, 145, 168, 0.15); }
+        .sync-badge.offline { color: #E2BCCA; background: rgba(226, 188, 202, 0.2); }
+
+        .online-badge {
+            background: rgba(200, 230, 201, 0.5);
+            color: #81C784;
+            border: 1px solid rgba(129, 199, 132, 0.15);
         }
 
         .wave-bar {
@@ -685,8 +723,18 @@
             .stat-icon { font-size: 1.6rem; }
             .table-header { flex-direction: column; align-items: stretch; }
             .search-box input { width: 100%; }
-            #music-control { top: 10px; right: 10px; padding: 6px 12px; top: calc(10px + env(safe-area-inset-top, 0px)); }
+            #music-control {
+                top: 8px;
+                right: 8px;
+                padding: 5px 8px;
+                top: calc(8px + env(safe-area-inset-top, 0px));
+                gap: 5px;
+                max-width: calc(100vw - 16px);
+            }
+            #music-toggle { width: 30px; height: 30px; min-width: 30px; font-size: 0.85rem; }
             #music-status { display: none; }
+            .sync-badge { font-size: 0.6rem; padding: 1px 5px; }
+            .online-badge { font-size: 0.6rem; padding: 1px 5px; }
             .container { padding: 20px 12px; }
             .table-section { padding: 16px; border-radius: 14px; }
             .formula-info, .note-section { padding: 16px; border-radius: 12px; }
@@ -742,7 +790,7 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
             50% { box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
         }
-        #online-count { animation: pulseGreen 2s ease-in-out infinite; }
+        /* 徽章动画 */
     </style>
 </head>
 <body>
@@ -1222,40 +1270,45 @@
 
         function createSyncIndicator() {
             if (document.getElementById('sync-status')) return;
-            var el = document.createElement('div');
+            var ctrl = document.getElementById('music-control');
+            if (!ctrl) return;
+
+            // 同步状态徽章 → 放进音乐控件内部
+            var el = document.createElement('span');
             el.id = 'sync-status';
-            el.style.cssText = 'position:fixed;top:12px;right:12px;z-index:9998;font-size:0.7rem;padding:4px 10px;border-radius:12px;background:rgba(255,251,252,0.92);color:#E2BCCA;box-shadow:0 1px 4px rgba(0,0,0,0.08);backdrop-filter:blur(4px);transition:opacity 0.3s;font-family:SimHei,sans-serif;';
+            el.className = 'sync-badge';
             el.textContent = '\u2601 \u8fde\u63a5\u4e2d...';
-            document.body.appendChild(el);
+            ctrl.appendChild(el);
             syncIndicator = el;
 
-            var ol = document.createElement('div');
+            // 在线人数徽章 → 放进音乐控件内部
+            var ol = document.createElement('span');
             ol.id = 'online-count';
-            ol.style.cssText = 'position:fixed;top:38px;right:12px;z-index:9998;font-size:0.65rem;padding:3px 8px;border-radius:10px;background:rgba(255,251,252,0.92);color:#81C784;box-shadow:0 1px 4px rgba(0,0,0,0.06);backdrop-filter:blur(4px);font-family:SimHei,sans-serif;display:flex;align-items:center;gap:4px;';
-            ol.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#4CAF50;display:inline-block;"></span>1\u4eba\u5728\u7ebf';
-            document.body.appendChild(ol);
+            ol.className = 'online-badge';
+            ol.innerHTML = '<span style="width:5px;height:5px;border-radius:50%;background:#4CAF50;display:inline-block;"></span>1\u4eba\u5728\u7ebf';
+            ctrl.appendChild(ol);
             onlineIndicator = ol;
         }
 
         function updateSyncStatus(status, onlineCount) {
             if (syncIndicator && status) {
+                syncIndicator.className = 'sync-badge';
                 if (status === 'synced') {
                     syncIndicator.textContent = '\u2601 \u5df2\u540c\u6b65';
-                    syncIndicator.style.color = '#A87A8C';
                 } else if (status === 'syncing') {
                     syncIndicator.textContent = '\u2601 \u540c\u6b65\u4e2d...';
-                    syncIndicator.style.color = '#DA8FA5';
+                    syncIndicator.className = 'sync-badge syncing';
                 } else if (status === 'offline') {
                     syncIndicator.textContent = '\u2601 \u79bb\u7ebf';
-                    syncIndicator.style.color = '#E2BCCA';
+                    syncIndicator.className = 'sync-badge offline';
                 } else if (status === 'connecting') {
                     syncIndicator.textContent = '\u2601 \u8fde\u63a5\u4e2d...';
-                    syncIndicator.style.color = '#E2BCCA';
+                    syncIndicator.className = 'sync-badge offline';
                 }
             }
             if (onlineIndicator && onlineCount !== undefined && onlineCount !== null) {
                 var dot = onlineCount > 1 ? '#4CAF50' : '#A5D6A7';
-                onlineIndicator.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:' + dot + ';display:inline-block;"></span>' + onlineCount + '\u4eba\u5728\u7ebf';
+                onlineIndicator.innerHTML = '<span style="width:5px;height:5px;border-radius:50%;background:' + dot + ';display:inline-block;"></span>' + onlineCount + '\u4eba\u5728\u7ebf';
             }
         }
 
