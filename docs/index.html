@@ -718,7 +718,18 @@
         /* 名字单元格：双击编辑模式 */
         td.name-col.name-editable { color: #5A3A47; cursor: pointer; }
         td.name-col.name-editable:hover { background: #FBD8E2 !important; outline: 2px dashed #F4A8C0; outline-offset: -2px; }
-        td.name-col.name-editable.editing { background: #FFFFFF !important; color: #5A3A47 !important; outline: 2px solid #E891A8; outline-offset: -2px; cursor: text; }
+        input.name-edit-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #E891A8;
+            border-radius: 6px;
+            padding: 4px 6px;
+            font-size: inherit;
+            font-family: inherit;
+            color: #5A3A47;
+            background: #FFFFFF;
+            outline: none;
+        }
 
         @keyframes cellFlash {
             0% { background: #C8E6C9 !important; box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); }
@@ -1643,7 +1654,7 @@
                 nameTd.textContent = member.name;
                 nameTd.title = '双击编辑名字';
                 nameTd.addEventListener('dblclick', function() {
-                    beginNameEdit(nameTd, handleBattleNameEdit);
+                    startNameEdit(nameTd, member.originalIndex, true);
                 });
                 tr.appendChild(nameTd);
 
@@ -1735,36 +1746,56 @@
             saveBattleToStorage();
         }
 
-        // 双击进入名字编辑模式：聚焦并选中全部文字，编辑中暂停云端同步
-        function beginNameEdit(td, saveHandler) {
+        // 双击名字 → 内联 input 编辑（不依赖 contentEditable，最稳）
+        function startNameEdit(td, memberIdx, isBattle) {
             if (editingActive) return;
             editingActive = true;
-            td.dataset.origName = td.textContent;
-            td.contentEditable = 'true';
-            td.classList.add('editing');
-            td.focus();
-            try {
-                var range = document.createRange();
-                range.selectNodeContents(td);
-                var sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-            } catch (e) {}
+            var arr = isBattle ? members : contributionMembers;
+            var cur = arr[memberIdx].name;
+            td.innerHTML = '';
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = cur;
+            input.className = 'name-edit-input';
+            td.appendChild(input);
+            input.focus();
+            input.select();
 
-            function onBlur() {
-                td.removeEventListener('blur', onBlur);
-                td.removeEventListener('keydown', onKey);
-                td.contentEditable = 'false';
-                td.classList.remove('editing');
+            function rerender() {
+                if (isBattle) {
+                    var si = document.getElementById('search-input');
+                    renderTable(si ? si.value : '');
+                    renderStats();
+                } else {
+                    renderContributionTable();
+                }
+            }
+            function cleanup() {
                 editingActive = false;
-                saveHandler({ target: td });
+                input.removeEventListener('blur', commit);
+                input.removeEventListener('keydown', onKey);
+            }
+            function commit() {
+                var newName = input.value.trim();
+                cleanup();
+                if (!newName) { rerender(); return; }
+                if (newName !== cur) {
+                    arr[memberIdx].name = newName;
+                    if (isBattle) { saveBattleToStorage(); }
+                    else { saveContributionToStorage(); }
+                }
+                rerender();
+            }
+            function cancel() {
+                cleanup();
+                rerender();
             }
             function onKey(e) {
-                if (e.key === 'Enter') { e.preventDefault(); td.blur(); }
-                else if (e.key === 'Escape') { e.preventDefault(); td.textContent = td.dataset.origName; td.blur(); }
+                if (e.key === 'Enter') { e.preventDefault(); commit(); }
+                else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
             }
-            td.addEventListener('blur', onBlur);
-            td.addEventListener('keydown', onKey);
+            input.addEventListener('blur', commit);
+            input.addEventListener('keydown', onKey);
         }
 
         function handleBattleNameEdit(e) {
@@ -1865,7 +1896,7 @@
                 nameTd.textContent = member.name;
                 nameTd.title = '双击编辑名字';
                 nameTd.addEventListener('dblclick', function() {
-                    beginNameEdit(nameTd, handleContribNameEdit);
+                    startNameEdit(nameTd, member.originalIndex, false);
                 });
                 tr.appendChild(nameTd);
 
