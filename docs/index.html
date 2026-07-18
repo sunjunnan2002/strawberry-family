@@ -1461,39 +1461,56 @@
                             return m && typeof m.name === 'string' &&
                                 Array.isArray(m.values) && m.values.length === validLen;
                         });
-                        if (battleValid) {
-                            // 成员数量变了（增删成员），整体更新
-                            if (battleData.length !== members.length) {
-                                members = battleData;
-                                ensureTimestamps();
-                                changed = true;
-                            } else {
-                                // 逐成员逐 cell 合并
-                                battleData.forEach(function(rm) {
-                                    var lm = members.find(function(m) { return m.name === rm.name; });
-                                    if (!lm) return;
-                                    if (!lm.valueTimestamps) lm.valueTimestamps = lm.values.map(function() { return null; });
-                                    var rmTs = rm.valueTimestamps || rm.values.map(function() { return null; });
-
-                                    for (var i = 0; i < rm.values.length; i++) {
-                                        // 跳过正在编辑的 cell
-                                        if (editingInfo && editingInfo.dateIndex === i &&
-                                            members[editingInfo.memberIndex] === lm) continue;
-
-                                        var localTs = lm.valueTimestamps[i] || null;
-                                        var remoteTs = rmTs[i] || null;
-
-                                        if (remoteTs && (!localTs || new Date(remoteTs) > new Date(localTs))) {
-                                            if (lm.values[i] !== rm.values[i]) {
-                                                changedCellsInfo.push({ type: 'battle', name: lm.name, dateIndex: i });
-                                                lm.values[i] = rm.values[i];
-                                                changed = true;
-                                            }
-                                            lm.valueTimestamps[i] = remoteTs;
-                                        }
+                        if (!battleValid) {
+                            // 跨月或列数变了：重映射成员数据到当前日期结构
+                            members = battleData.map(function(m) {
+                                return { name: m.name, values: dates.map(function() { return null; }) };
+                            });
+                            // 尝试按名字匹配迁移旧值
+                            var oldMembers = members.slice();
+                            battleData.forEach(function(rm) {
+                                var lm = oldMembers.find(function(x) { return x.name === rm.name; });
+                                if (!lm || !rm.values) return;
+                                for (var mi = 0; mi < Math.min(rm.values.length, validLen); mi++) {
+                                    if (rm.values[mi] !== null && rm.values[mi] !== undefined) {
+                                        lm.values[mi] = rm.values[mi];
                                     }
-                                });
-                            }
+                                }
+                                if (rm.valueTimestamps) lm.valueTimestamps = rm.valueTimestamps.slice(0, validLen);
+                            });
+                            ensureTimestamps();
+                            changed = true;
+                        } else if (battleData.length !== members.length) {
+                            // 成员数量变了（增删成员），整体更新
+                            members = battleData;
+                            ensureTimestamps();
+                            changed = true;
+                        } else {
+                            // 逐成员逐 cell 合并
+                            battleData.forEach(function(rm) {
+                                var lm = members.find(function(m) { return m.name === rm.name; });
+                                if (!lm) return;
+                                if (!lm.valueTimestamps) lm.valueTimestamps = lm.values.map(function() { return null; });
+                                var rmTs = rm.valueTimestamps || rm.values.map(function() { return null; });
+
+                                for (var i = 0; i < rm.values.length; i++) {
+                                    // 跳过正在编辑的 cell
+                                    if (editingInfo && editingInfo.dateIndex === i &&
+                                        members[editingInfo.memberIndex] === lm) continue;
+
+                                    var localTs = lm.valueTimestamps[i] || null;
+                                    var remoteTs = rmTs[i] || null;
+
+                                    if (remoteTs && (!localTs || new Date(remoteTs) > new Date(localTs))) {
+                                        if (lm.values[i] !== rm.values[i]) {
+                                            changedCellsInfo.push({ type: 'battle', name: lm.name, dateIndex: i });
+                                            lm.values[i] = rm.values[i];
+                                            changed = true;
+                                        }
+                                        lm.valueTimestamps[i] = remoteTs;
+                                    }
+                                }
+                            });
                         }
                     }
 
@@ -1616,7 +1633,8 @@
         setTimeout(async function() {
             await fetchConfig();
             ensureTimestamps();
-            loadFromCloud();
+            renderAll();  // 先渲染一次，保证页面不空白
+            loadFromCloud();  // 再从云端同步（可能覆盖/补充数据）
             sendHeartbeat();
         }, 500);
 
