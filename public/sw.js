@@ -1,5 +1,5 @@
 // 小草莓家族战 Service Worker
-const CACHE_NAME = 'strawberry-family-v23';
+const CACHE_NAME = 'strawberry-family-v24';
 const ASSETS = [
     './',
     './index.html',

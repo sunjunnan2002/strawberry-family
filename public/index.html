@@ -33,6 +33,23 @@
         }
         .dashboard-banner:hover{transform:translateY(-1px);}
 
+        #install-app-btn{
+            display:none;margin:0 auto 18px;padding:11px 26px;
+            background:linear-gradient(90deg,#f6a5c6,#f180ad);color:#fff;
+            border:none;border-radius:25px;font-size:15px;font-weight:700;
+            font-family:'Yaofont','MitsuGirl',sans-serif;cursor:pointer;
+            box-shadow:0 6px 18px rgba(241,128,173,.35);
+            transition:transform .12s ease,box-shadow .12s ease;
+            animation:installPulse 2s ease-in-out infinite;
+        }
+        #install-app-btn.show{display:block;}
+        #install-app-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(241,128,173,.45);}
+        #install-app-btn:active{transform:scale(.96);}
+        @keyframes installPulse{
+            0%,100%{box-shadow:0 6px 18px rgba(241,128,173,.35);}
+            50%{box-shadow:0 6px 24px rgba(241,128,173,.6);}
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -854,6 +871,8 @@
         </header>
 
         <a class="dashboard-banner" href="dashboard.html">🛡 增强看板 · 风险分析 / 三级名单 / 高清图片导出 →</a>
+
+        <button id="install-app-btn" type="button">📲 安装应用到桌面</button>
 
         <div class="tab-switcher">
             <button class="tab-btn active" data-tab="battle">⚔️ 家族战</button>
@@ -2384,10 +2403,20 @@
                    window.navigator.standalone === true;
         }
 
+        var installAppBtn = document.getElementById('install-app-btn');
+
+        function isIOS() {
+            return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
         window.addEventListener('beforeinstallprompt', function(e) {
             e.preventDefault();
             deferredPrompt = e;
             if (!isStandalone()) {
+                // 顶部按钮立即显示
+                if (installAppBtn) installAppBtn.classList.add('show');
+                // 底部浮条延迟提示（保留原逻辑）
                 setTimeout(function() {
                     var banner = document.getElementById('install-banner');
                     if (banner && !sessionStorage.getItem('install-dismissed')) {
@@ -2396,6 +2425,30 @@
                 }, 3000);
             }
         });
+
+        // 顶部「安装应用」按钮
+        if (installAppBtn) {
+            // iOS 没有 beforeinstallprompt：若非已安装则直接显示按钮，点击给引导
+            if (isIOS() && !isStandalone()) {
+                installAppBtn.classList.add('show');
+            }
+            installAppBtn.addEventListener('click', async function() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    var choice = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    if (choice && choice.outcome === 'accepted') {
+                        installAppBtn.classList.remove('show');
+                    }
+                    var banner = document.getElementById('install-banner');
+                    if (banner) banner.classList.remove('show');
+                } else if (isIOS()) {
+                    alert('在 iPhone / iPad 上安装：\n\n1️⃣ 点击底部 Safari 的「分享」按钮 ⬆️\n2️⃣ 选择「添加到主屏幕」\n3️⃣ 点「添加」即可 🍓\n\n（iOS 需用 Safari 打开本页）');
+                } else {
+                    alert('如果没有弹出安装窗口：\n\n请用 Chrome 打开本页，点击地址栏右侧的「安装」图标，\n或浏览器菜单 ⋮ →「安装应用 / 添加到主屏幕」🍓');
+                }
+            });
+        }
 
         var installBtn = document.getElementById('install-btn');
         if (installBtn) {
@@ -2406,6 +2459,7 @@
                     deferredPrompt = null;
                     var banner = document.getElementById('install-banner');
                     if (banner) banner.classList.remove('show');
+                    if (installAppBtn) installAppBtn.classList.remove('show');
                 }
             });
         }
@@ -2422,11 +2476,12 @@
         window.addEventListener('appinstalled', function() {
             var banner = document.getElementById('install-banner');
             if (banner) banner.classList.remove('show');
+            if (installAppBtn) installAppBtn.classList.remove('show');
         });
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js?v=23', { updateViaCache: 'none' })
+                navigator.serviceWorker.register('./sw.js?v=24', { updateViaCache: 'none' })
                     .then(function(reg) {
                         reg.addEventListener('updatefound', function() {
                             var newWorker = reg.installing;
